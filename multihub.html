@@ -1,0 +1,4015 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <title>Multi-Services Hub - Jeux & Outils</title>
+    <!-- qrcode.js n'est plus nécessaire avec l'implémentation personnalisée -->
+    <style>
+        /* General styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', Arial, sans-serif; /* Nouvelle police */
+            background: #1a1a1a; /* Fond noir */
+            color: #e0e0e0; /* Texte gris clair */
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: rgba(0, 0, 0, 0.4); /* Fond plus sombre pour l'en-tête */
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #a8c0ff; /* Couleur unie pour le logo */
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #e0e0e0;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.08); /* Effet hover subtil */
+            transform: translateY(-2px);
+        }
+
+        .main-content {
+            margin-top: 100px;
+            padding: 2rem;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 4rem 0;
+            margin-bottom: 4rem;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            color: #f0f0f0;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .service-card {
+            background: rgba(255, 255, 255, 0.05); /* Fond de carte sombre */
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.08); /* Effet hover sur carte */
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .service-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #8c8cd9; /* Couleur d'accentuation */
+        }
+
+        .service-card p {
+            opacity: 0.7;
+            line-height: 1.6;
+        }
+
+        .category-header {
+            text-align: center;
+            margin: 4rem 0 2rem 0;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            color: #f0f0f0;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85); /* Fond de modal plus opaque */
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #2a2a2a; /* Fond de contenu de modal sombre */
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow-y: auto;
+            color: #e0e0e0;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: #e0e0e0;
+            font-size: 2rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Styles for inputs and buttons in modals */
+        input[type="number"], input[type="text"], select, textarea {
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #e0e0e0;
+            font-size: 1rem;
+            width: calc(100% - 1rem); /* Adjusted for padding */
+        }
+        input[type="number"]::placeholder, input[type="text"]::placeholder, textarea::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .btn {
+            background: #6a82fb; /* Solid color for buttons */
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 25px;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            opacity: 0.9;
+        }
+
+        /* Service specific styles */
+        .calculator {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 1rem;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .calc-display {
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 10px;
+            text-align: right;
+            font-size: 1.5rem;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .calc-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .calc-btn {
+            padding: 1rem;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .calc-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .calc-btn.operator {
+            background: #8c8cd9; /* Solid accent color for operators */
+        }
+
+        .password-generator, .qr-generator, .timer-container, .color-palette, .lorem-generator, .json-viewer, .unit-converter, .typing-test, .quiz-game, .cps-test, .todo-list-container, .cookie-clicker, .rpg-game {
+            text-align: center;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 1rem;
+            background: rgba(0,0,0,0.2);
+            border-radius: 15px;
+        }
+        
+        /* Snake Game styles */
+        #snakeCanvas {
+            border: 2px solid #5cb85c; /* Brighter border color */
+            background: #333; /* Dark game background */
+            border-radius: 10px;
+        }
+        /* Snake body part style */
+        .snake-part {
+            background-color: #5cb85c; /* Bright green */
+            border: 1px solid #4cae4c;
+            border-radius: 3px;
+        }
+        /* Food style */
+        .food-part {
+            background-color: #ff4d4d; /* Bright red */
+            border: 1px solid #cc0000;
+            border-radius: 50%;
+        }
+
+        /* 2048 Game */
+        .game-2048-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            width: 320px;
+            height: 320px;
+            margin: 2rem auto;
+            background: #444; /* Darker game background */
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .game-2048-tile {
+            background: #555; /* Default tile color */
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            color: #e0e0e0;
+        }
+
+        /* 2048 tile colors */
+        .game-2048-tile.tile-2 { background: #eee4da; color: #776e65; }
+        .game-2048-tile.tile-4 { background: #ede0c8; color: #776e65; }
+        .game-2048-tile.tile-8 { background: #f2b179; color: #f9f6f2; }
+        .game-2048-tile.tile-16 { background: #f59563; color: #f9f6f2; }
+        .game-2048-tile.tile-32 { background: #f67c5f; color: #f9f6f2; }
+        .game-2048-tile.tile-64 { background: #f65e3b; color: #f9f6f2; }
+        .game-2048-tile.tile-128 { background: #edcf72; color: #f9f6f2; font-size: 1.2rem; }
+        .game-2048-tile.tile-256 { background: #edcc61; color: #f9f6f2; font-size: 1.2rem; }
+        .game-2048-tile.tile-512 { background: #edc850; color: #f9f9f2; font-size: 1.2rem; }
+        .game-2048-tile.tile-1024 { background: #edc53f; color: #f9f6f2; font-size: 1rem; }
+        .game-2048-tile.tile-2048 { background: #edc22e; color: #f9f6f2; font-size: 1rem; }
+
+        /* Memory Game */
+        .memory-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            max-width: 400px;
+            margin: 2rem auto;
+        }
+
+        .memory-card {
+            aspect-ratio: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .memory-card:hover {
+            transform: scale(1.05);
+        }
+
+        .memory-card.flipped {
+            background: #8c8cd9; /* Flip color */
+            transform: rotateY(180deg);
+        }
+
+        .memory-card.matched {
+            background: #5cb85c;
+            pointer-events: none;
+        }
+
+        /* Color Palette */
+        .color-box {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: end;
+            justify-content: center;
+            padding: 0.5rem;
+            color: white;
+            font-size: 0.8rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Reaction Game */
+        .reaction-area {
+            width: 100%;
+            height: 300px;
+            border-radius: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 2rem 0;
+            transition: all 0.3s ease;
+            user-select: none;
+            color: white;
+        }
+
+        .reaction-wait {
+            background: #8c8cd9; /* New wait color */
+        }
+
+        .reaction-ready {
+            background: #5cb85c;
+        }
+
+        .reaction-early {
+            background: #ffc107;
+        }
+        
+        /* Pong Game */
+        #pongCanvas {
+            border: 2px solid #ddd;
+            background: #000;
+            display: block;
+            margin: 20px auto;
+        }
+        .pong-controls {
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        /* Tetris Game */
+        #tetrisCanvas {
+            border: 2px solid #ddd;
+            background: #000;
+            display: block;
+            margin: 20px auto;
+        }
+        .tetris-info {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        /* Cookie Clicker */
+        .cookie-clicker {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+        #cookie {
+            width: 150px;
+            height: 150px;
+            background: #8B4513; /* Cookie color */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            transition: transform 0.1s;
+        }
+        #cookie:active {
+            transform: scale(0.95);
+        }
+        #cookieCount {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #ffc107;
+        }
+        .cookie-upgrades {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 1rem;
+        }
+        .cookie-upgrade-btn {
+            background: #4CAF50;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: opacity 0.3s;
+            font-size: 0.9rem;
+        }
+        .cookie-upgrade-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Typing Speed Test */
+        .typing-test-area {
+            background: rgba(0,0,0,0.4);
+            padding: 2rem;
+            border-radius: 15px;
+            margin: 2rem 0;
+            text-align: left;
+        }
+        #typingText {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            color: #f0f0f0;
+        }
+        #typingInput {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.05);
+            color: #e0e0e0;
+        }
+        #typingResults {
+            margin-top: 1rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .correct-char { color: #5cb85c; }
+        .incorrect-char { color: #ff4d4d; }
+        .current-char { background-color: rgba(255,255,255,0.2); border-radius: 3px; }
+
+        /* Mini-Quiz */
+        .quiz-game h3 {
+            margin-bottom: 1.5rem;
+            color: #f0f0f0;
+        }
+        .quiz-options button {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #e0e0e0;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s, border-color 0.3s;
+        }
+        .quiz-options button:hover {
+            background: rgba(255,255,255,0.15);
+        }
+        .quiz-options button.correct {
+            background: #5cb85c;
+        }
+        .quiz-options button.incorrect {
+            background: #ff4d4d;
+        }
+        #quizResult {
+            margin-top: 1.5rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        /* CPS Test */
+        #cpsClickArea {
+            width: 100%;
+            height: 200px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
+        #cpsClickArea.active {
+            background: #8c8cd9;
+        }
+        #cpsClickArea.disabled {
+            background: rgba(255,255,255,0.05);
+            cursor: not-allowed;
+        }
+        #cpsResult {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffc107;
+        }
+
+        /* To-Do List */
+        .todo-list-container {
+            text-align: left;
+        }
+        #todoInput {
+            width: calc(100% - 22px); /* Adjust for button */
+            padding: 0.75rem;
+            font-size: 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.05);
+            color: #e0e0e0;
+            margin-bottom: 1rem;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .add-todo-btn {
+            padding: 0.75rem 1rem;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+        #todoList {
+            list-style: none;
+            padding: 0;
+        }
+        #todoList li {
+            background: rgba(255,255,255,0.05);
+            padding: 0.8rem 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #todoList li.completed {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+        #todoList li button {
+            background: #ff4d4d;
+            border: none;
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #todoList li button:hover {
+            opacity: 0.9;
+        }
+
+        /* Flappy Bird Game */
+        #flappyBirdCanvas {
+            border: 2px solid #6a82fb;
+            background: skyblue;
+            display: block;
+            margin: 20px auto;
+            border-radius: 10px;
+        }
+
+        /* Pac-Man Game */
+        #pacManCanvas {
+            border: 2px solid #ffc107;
+            background: #000;
+            display: block;
+            margin: 20px auto;
+            border-radius: 10px;
+        }
+
+        /* RPG Game */
+        .rpg-game-container {
+            text-align: left;
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(0,0,0,0.3);
+            padding: 1.5rem;
+            border-radius: 15px;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        #rpgOutput {
+            background: rgba(255,255,255,0.05);
+            padding: 1rem;
+            border-radius: 8px;
+            min-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+            white-space: pre-wrap; /* Preserve line breaks */
+            text-align: left;
+        }
+        .rpg-options button {
+            display: block;
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 0.5rem;
+            background: #6a82fb;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .rpg-options button:hover {
+            background: #546ee6;
+        }
+        .rpg-stats {
+            margin-top: 1rem;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        .rpg-message-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #333;
+            border: 1px solid #6a82fb;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            z-index: 3000;
+            text-align: center;
+            display: none; /* Hidden by default */
+            max-width: 80vw;
+        }
+        .rpg-message-box button {
+            margin-top: 15px;
+            padding: 8px 15px;
+            background: #6a82fb;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .memory-board {
+                max-width: 300px;
+            }
+
+            .game-2048-board {
+                width: 280px;
+                height: 280px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">Hubonaut</div>
+            <ul class="nav-links">
+                <li><a href="#home">Accueil</a></li>
+                <li><a href="#games">Jeux</a></li>
+                <li><a href="#tools">Outils</a></li>
+                <li><a href="#fun">Fun & Geek</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <section class="hero" id="home">
+            <h1>Bienvenue sur Hubonaut</h1>
+            <p>Votre destination unique pour des jeux addictifs, des outils pratiques et des services amusants. Tout ce dont vous avez besoin, en un seul endroit.</p>
+        </section>
+
+        <h2 class="category-header" id="games">Mini-Jeux</h2>
+        <div class="services-grid">
+            <div class="service-card" onclick="openSnakeGame()">
+                <h3>Snake</h3>
+                <p>Le classique indémodable ! Mangez des pommes et grandissez sans vous mordre la queue.</p>
+            </div>
+            <div class="service-card" onclick="openMemoryGame()">
+                <h3>Jeu de Mémoire</h3>
+                <p>Testez votre mémoire en retournant les cartes identiques. Combien de coups vous faudra-t-il ?</p>
+            </div>
+            <div class="service-card" onclick="open2048Game()">
+                <h3>2048</h3>
+                <p>Combinez les nombres pour atteindre 2048. Simple en apparence, mais très addictif !</p>
+            </div>
+            <div class="service-card" onclick="openReactionGame()">
+                <h3>Test de Réflexes</h3>
+                <p>Testez votre temps de réaction. Cliquez dès que l'écran change de couleur !</p>
+            </div>
+            <div class="service-card" onclick="openTetrisGame()">
+                <h3>Tetris</h3>
+                <p>Le puzzle classique ! Alignez les blocs pour faire disparaître les lignes.</p>
+            </div>
+            <div class="service-card" onclick="openPongGame()">
+                <h3>Pong</h3>
+                <p>Le premier jeu vidéo ! Renvoyez la balle avec votre raquette.</p>
+            </div>
+            <div class="service-card" onclick="openCookieClicker()">
+                <h3>Cookie Clicker</h3>
+                <p>Cliquez, cliquez, cliquez ! Un jeu addictif où plus vous cliquez, plus vous gagnez.</p>
+            </div>
+            <div class="service-card" onclick="openFlappyBirdGame()">
+                <h3>Flappy Birdo</h3>
+                <p>Faites voler l'oiseau entre les tuyaux sans le toucher.</p>
+            </div>
+            <div class="service-card" onclick="openPacManGame()">
+                <h3>Pac-Man</h3>
+                <p>Échappez aux fantômes et mangez toutes les pac-gommes !</p>
+            </div>
+            <div class="service-card" onclick="openGameBoyEmulator()">
+                <h3>Game Boy Emulator</h3>
+                <p>Revivez les classiques de la Game Boy directement dans votre navigateur !</p>
+            </div>
+        </div>
+
+        <h2 class="category-header" id="tools">Outils Pratiques</h2>
+        <div class="services-grid">
+            <div class="service-card" onclick="openCalculator()">
+                <h3>Calculatrice</h3>
+                <p>Une calculatrice élégante et fonctionnelle pour tous vos calculs quotidiens.</p>
+            </div>
+            <div class="service-card" onclick="openPasswordGenerator()">
+                <h3>Générateur de Mots de Passe</h3>
+                <p>Créez des mots de passe sécurisés et personnalisables en un clic.</p>
+            </div>
+            <div class="service-card" onclick="openQRGenerator()">
+                <h3>Générateur QR Code</h3>
+                <p>Transformez vos textes et URLs en codes QR instantanément.</p>
+            </div>
+            <div class="service-card" onclick="openTimer()">
+                <h3>Minuterie & Chrono</h3>
+                <p>Minuterie, chronomètre et horloge mondiale en un seul outil.</p>
+            </div>
+            <div class="service-card" onclick="openUnitConverter()">
+                <h3>Convertisseur d'Unités</h3>
+                <p>Convertissez facilement poids, longueurs, températures et plus encore.</p>
+            </div>
+            <div class="service-card" onclick="openLoremGenerator()">
+                <h3>Générateur Lorem Ipsum</h3>
+                <p>Générez du faux texte pour vos maquettes et prototypes.</p>
+            </div>
+            <div class="service-card" onclick="openTypingSpeedTest()">
+                <h3>Test de Vitesse de Frappe</h3>
+                <p>Améliorez votre vitesse de frappe et votre précision.</p>
+            </div>
+            <div class="service-card" onclick="openTodoList()">
+                <h3>To-Do List</h3>
+                <p>Organisez vos tâches quotidiennes avec cette liste simple.</p>
+            </div>
+        </div>
+
+        <h2 class="category-header" id="fun">Fun & Geek</h2>
+        <div class="services-grid">
+            <div class="service-card" onclick="openColorPalette()">
+                <h3>Générateur de Palettes</h3>
+                <p>Créez de magnifiques palettes de couleurs pour vos projets créatifs.</p>
+            </div>
+            <div class="service-card" onclick="openLinuxTerminal()">
+                <h3>Terminal Linux</h3>
+                <p>Simulateur de terminal Linux complet pour les nostalgiques et les geeks.</p>
+            </div>
+            <div class="service-card" onclick="openNameGenerator()">
+                <h3>Générateur de Noms</h3>
+                <p>Générez des noms pour personnages, projets, entreprises et bien plus !</p>
+            </div>
+            <div class="service-card" onclick="openDiceRoller()">
+                <h3>Lanceur de Dés</h3>
+                <p>Lancez des dés virtuels pour vos jeux de société et jeux de rôle.</p>
+            </div>
+            <div class="service-card" onclick="openJSONViewer()">
+                <h3>Visualiseur JSON</h3>
+                <p>Formatez et visualisez vos données JSON de manière lisible.</p>
+            </div>
+            <div class="service-card" onclick="openMiniQuiz()">
+                <h3>Mini-Quiz</h3>
+                <p>Testez vos connaissances avec un quiz aléatoire de culture générale.</p>
+            </div>
+            <div class="service-card" onclick="openCPSTest()">
+                <h3>CPS Test</h3>
+                <p>Mesurez votre vitesse de clic par seconde.</p>
+            </div>
+            <div class="service-card" onclick="openRPGGame()">
+                <h3>Jeu de Rôle (RPG)</h3>
+                <p>Lancez-vous dans une aventure textuelle épique avec des combats et des choix !</p>
+            </div>
+        </div>
+    </main>
+
+    <div id="serviceModal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <!-- Custom Message Box for alerts -->
+    <div id="messageBox" class="rpg-message-box">
+        <p id="messageBoxText"></p>
+        <button onclick="closeMessageBox()">OK</button>
+    </div>
+
+    <script>
+        // Custom message box functions
+        function showMessageBox(message) {
+            document.getElementById('messageBoxText').textContent = message;
+            document.getElementById('messageBox').style.display = 'block';
+        }
+
+        function closeMessageBox() {
+            document.getElementById('messageBox').style.display = 'none';
+        }
+
+        // Modal system
+        function openModal(content) {
+            document.getElementById('modalContent').innerHTML = content;
+            document.getElementById('serviceModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('modalContent').innerHTML = ''; // Clear content to prevent old scripts from running
+            document.getElementById('serviceModal').style.display = 'none';
+            // Clear global timers and events if defined
+            if (window.gameInterval) {
+                clearInterval(window.gameInterval);
+                window.gameInterval = null; // Important to nullify after clearing
+            }
+            if (window.timerInterval) {
+                clearInterval(window.timerInterval);
+                window.timerInterval = null;
+            }
+            if (window.reactionTimeout) {
+                clearTimeout(window.reactionTimeout);
+                window.reactionTimeout = null;
+            }
+            if (window.pongGameInterval) {
+                clearInterval(window.pongGameInterval);
+                window.pongGameInterval = null;
+            }
+            if (window.tetrisGameInterval) {
+                clearInterval(window.tetrisGameInterval);
+                window.tetrisGameInterval = null;
+            }
+            if (window.typingTestInterval) {
+                clearInterval(window.typingTestInterval);
+                window.typingTestInterval = null;
+            }
+            if (window.cpsTestTimeout) {
+                clearTimeout(window.cpsTestTimeout);
+                window.cpsTestTimeout = null;
+            }
+            if (window.cookieAutoClickerInterval) {
+                clearInterval(window.cookieAutoClickerInterval);
+                window.cookieAutoClickerInterval = null;
+            }
+            if (window.flappyGameLoop) {
+                cancelAnimationFrame(window.flappyGameLoop);
+                window.flappyGameLoop = null;
+            }
+            if (window.pacManGameLoop) {
+                cancelAnimationFrame(window.pacManGameLoop);
+                window.pacManGameLoop = null;
+            }
+            if (window.rpgGameInterval) { // Clear RPG interval if any
+                clearInterval(window.rpgGameInterval);
+                window.rpgGameInterval = null;
+            }
+
+            // Reset states for services if necessary
+            timerState = 'stopped';
+            timerTime = 0;
+            stopwatchTime = 0;
+            updateTimerDisplay(); // Ensure display is reset
+            
+            // Remove all keydown listeners to prevent conflicts
+            document.removeEventListener('keydown', handleSnakeKeydown);
+            document.removeEventListener('keydown', handle2048Keydown);
+            document.removeEventListener('keydown', handlePongKeydown);
+            document.removeEventListener('keydown', handleTetrisKeydown);
+            document.removeEventListener('keydown', handleFlappyBirdKeydown);
+            document.removeEventListener('keydown', handlePacManKeydown);
+            document.removeEventListener('keydown', handleRPGKeydown); // Remove RPG key listener
+
+            // Re-enable scroll if it was disabled by a game (e.g., Tetris)
+            document.body.style.overflow = ''; 
+        }
+
+        // Calculator
+        function openCalculator() {
+            const calcHTML = `
+                <h2>Calculatrice</h2>
+                <div class="calculator">
+                    <div class="calc-display" id="calcDisplay">0</div>
+                    <div class="calc-buttons">
+                        <button class="calc-btn" onclick="clearCalc()">C</button>
+                        <button class="calc-btn" onclick="deleteLast()">⌫</button>
+                        <button class="calc-btn operator" onclick="inputOperator('/')">/</button>
+                        <button class="calc-btn operator" onclick="inputOperator('*')">×</button>
+                        
+                        <button class="calc-btn" onclick="inputNumber('7')">7</button>
+                        <button class="calc-btn" onclick="inputNumber('8')">8</button>
+                        <button class="calc-btn" onclick="inputNumber('9')">9</button>
+                        <button class="calc-btn operator" onclick="inputOperator('-')">-</button>
+                        
+                        <button class="calc-btn" onclick="inputNumber('4')">4</button>
+                        <button class="calc-btn" onclick="inputNumber('5')">5</button>
+                        <button class="calc-btn" onclick="inputNumber('6')">6</button>
+                        <button class="calc-btn operator" onclick="inputOperator('+')">+</button>
+                        
+                        <button class="calc-btn" onclick="inputNumber('1')">1</button>
+                        <button class="calc-btn" onclick="inputNumber('2')">2</button>
+                        <button class="calc-btn" onclick="inputNumber('3')">3</button>
+                        <button class="calc-btn operator" onclick="calculate()" style="grid-row: span 2">=</button>
+                        
+                        <button class="calc-btn" onclick="inputNumber('0')" style="grid-column: span 2">0</button>
+                        <button class="calc-btn" onclick="inputNumber('.')">.</button>
+                    </div>
+                </div>
+            `;
+            openModal(calcHTML);
+            // Re-initialize calculator state when opened
+            calcExpression = '';
+            calcResult = '0';
+            shouldResetDisplay = false;
+            updateCalcDisplay();
+        }
+
+        let calcExpression = '';
+        let calcResult = '0';
+        let shouldResetDisplay = false;
+
+        function updateCalcDisplay() {
+            document.getElementById('calcDisplay').textContent = calcExpression || calcResult;
+        }
+
+        function inputNumber(num) {
+            if (shouldResetDisplay) {
+                calcExpression = '';
+                shouldResetDisplay = false;
+            }
+            calcExpression += num;
+            updateCalcDisplay();
+        }
+
+        function inputOperator(op) {
+            if (calcExpression && !isNaN(calcExpression.slice(-1))) {
+                calcExpression += op === '*' ? '*' : op;
+                updateCalcDisplay();
+            }
+        }
+
+        function clearCalc() {
+            calcExpression = '';
+            calcResult = '0';
+            updateCalcDisplay();
+        }
+
+        function deleteLast() {
+            calcExpression = calcExpression.slice(0, -1);
+            updateCalcDisplay();
+        }
+
+        function calculate() {
+            if (calcExpression) {
+                try {
+                    calcResult = eval(calcExpression).toString(); // For simplicity, re-using eval here
+                    calcExpression = '';
+                    shouldResetDisplay = true;
+                    updateCalcDisplay();
+                } catch (e) {
+                    calcResult = 'Erreur';
+                    updateCalcDisplay();
+                }
+            }
+        }
+
+        // Password Generator
+        function openPasswordGenerator() {
+            const passHTML = `
+                <h2>Générateur de Mots de Passe</h2>
+                <div class="password-generator">
+                    <div class="password-options">
+                        <label><input type="checkbox" id="uppercase" checked> Majuscules</label>
+                        <label><input type="checkbox" id="lowercase" checked> Minuscules</label>
+                        <label><input type="checkbox" id="numbers" checked> Chiffres</label>
+                        <label><input type="checkbox" id="symbols"> Symboles</label>
+                    </div>
+                    <div>
+                        <label>Longueur: </label>
+                        <input type="range" id="length" min="4" max="50" value="12" oninput="updateLengthDisplay()">
+                        <span id="lengthDisplay">12</span>
+                    </div>
+                    <button class="btn" onclick="generatePassword()">Générer un mot de passe</button>
+                    <div class="generated-password" id="generatedPassword">Cliquez sur "Générer" pour créer un mot de passe</div>
+                    <button class="btn" onclick="copyPassword()">Copier</button>
+                </div>
+            `;
+            openModal(passHTML);
+            // Initialize length display after modal opens
+            setTimeout(updateLengthDisplay, 50); 
+        }
+
+        function updateLengthDisplay() {
+            const lengthInput = document.getElementById('length');
+            const lengthDisplay = document.getElementById('lengthDisplay');
+            if (lengthInput && lengthDisplay) {
+                lengthDisplay.textContent = lengthInput.value;
+            }
+        }
+
+        function generatePassword() {
+            const uppercase = document.getElementById('uppercase').checked;
+            const lowercase = document.getElementById('lowercase').checked;
+            const numbers = document.getElementById('numbers').checked;
+            const symbols = document.getElementById('symbols').checked;
+            const length = parseInt(document.getElementById('length').value);
+
+            let charset = '';
+            if (uppercase) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            if (lowercase) charset += 'abcdefghijklmnopqrstuvwxyz';
+            if (numbers) charset += '0123456789';
+            if (symbols) charset += '!@#$%^&*()_+-=[]{}|;:,.<>?';
+
+            if (!charset) {
+                document.getElementById('generatedPassword').textContent = 'Veuillez sélectionner au moins une option';
+                return;
+            }
+
+            let password = '';
+            for (let i = 0; i < length; i++) {
+                password += charset.charAt(Math.floor(Math.random() * charset.length));
+            }
+
+            document.getElementById('generatedPassword').textContent = password;
+        }
+
+        function copyPassword() {
+            const passwordElement = document.getElementById('generatedPassword');
+            if (passwordElement && passwordElement.textContent && passwordElement.textContent !== 'Cliquez sur "Générer" pour créer un mot de passe' && passwordElement.textContent !== 'Veuillez sélectionner au moins une option') {
+                navigator.clipboard.writeText(passwordElement.textContent).then(() => {
+                    showMessageBox('Mot de passe copié !');
+                }).catch(err => {
+                    console.error('Erreur de copie:', err);
+                    showMessageBox('Échec de la copie. Votre navigateur pourrait ne pas supporter cette fonction.');
+                });
+            }
+        }
+
+
+        // Snake Game (Improved graphics)
+        let snakeGame = null; 
+        let snake = [];
+        let food = {};
+        let dx = 20;
+        let dy = 0;
+        let score = 0;
+        let gameLoopInterval; 
+
+        function openSnakeGame() {
+            const snakeHTML = `
+                <h2>Snake Game</h2>
+                <div style="text-align: center;">
+                    <canvas id="snakeCanvas" width="400" height="400" style="border: 2px solid #5cb85c; background: #333; border-radius: 10px;"></canvas>
+                    <div style="margin: 1rem 0;">
+                        <span>Score: <span id="snakeScore">0</span></span>
+                        <button class="btn" onclick="restartSnake()" style="margin-left: 2rem;">Recommencer</button>
+                    </div>
+                    <p>Utilisez les flèches du clavier pour jouer</p>
+                </div>
+            `;
+            openModal(snakeHTML);
+            setTimeout(initSnakeGame, 100);
+        }
+
+        function initSnakeGame() {
+            const canvas = document.getElementById('snakeCanvas');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const scoreElement = document.getElementById('snakeScore');
+
+            snake = [{x: 200, y: 200}];
+            food = {x: 100, y: 100};
+            dx = 20;
+            dy = 0;
+            score = 0;
+            scoreElement.textContent = score;
+
+            document.removeEventListener('keydown', handleSnakeKeydown);
+            document.addEventListener('keydown', handleSnakeKeydown);
+
+            if (gameLoopInterval) clearInterval(gameLoopInterval);
+            gameLoop();
+        }
+
+        function handleSnakeKeydown(e) {
+            const keyPressed = e.key;
+            const goingUp = dy === -20;
+            const goingDown = dy === 20;
+            const goingLeft = dx === -20;
+            const goingRight = dx === 20;
+
+            if (keyPressed === 'ArrowUp' && !goingDown) { dx = 0; dy = -20; }
+            if (keyPressed === 'ArrowDown' && !goingUp) { dx = 0; dy = 20; }
+            if (keyPressed === 'ArrowLeft' && !goingRight) { dx = -20; dy = 0; }
+            if (keyPressed === 'ArrowRight' && !goingLeft) { dx = 20; dy = 0; }
+        }
+
+        function drawSnakePart(snakePart, ctx) {
+            ctx.fillStyle = '#5cb85c'; // Bright green
+            ctx.strokeStyle = '#4cae4c'; // Dark green
+            ctx.lineWidth = 2;
+            ctx.fillRect(snakePart.x, snakePart.y, 20, 20);
+            ctx.strokeRect(snakePart.x, snakePart.y, 20, 20);
+        }
+
+        function drawSnake(ctx) {
+            snake.forEach(part => drawSnakePart(part, ctx));
+        }
+
+        function drawFood(ctx) {
+            ctx.fillStyle = '#ff4d4d'; // Bright red
+            ctx.strokeStyle = '#cc0000'; // Dark red
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(food.x + 10, food.y + 10, 10, 0, 2 * Math.PI); // Draw a circle for food
+            ctx.fill();
+            ctx.stroke();
+        }
+
+        function moveSnake(canvas) {
+            const head = {x: snake[0].x + dx, y: snake[0].y + dy};
+            snake.unshift(head);
+
+            if (head.x === food.x && head.y === food.y) {
+                score += 10;
+                document.getElementById('snakeScore').textContent = score;
+                generateFood(canvas);
+            } else {
+                snake.pop();
+            }
+        }
+
+        function generateFood(canvas) {
+            let newFood;
+            do {
+                newFood = {
+                    x: Math.floor(Math.random() * (canvas.width / 20)) * 20,
+                    y: Math.floor(Math.random() * (canvas.height / 20)) * 20
+                };
+            } while (snake.some(part => part.x === newFood.x && part.y === newFood.y));
+            food = newFood;
+        }
+
+        function checkCollision(canvas) {
+            const head = snake[0];
+            const hitWall = head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height;
+            const hitSelf = snake.slice(1).some(segment => segment.x === head.x && segment.y === head.y);
+            return hitWall || hitSelf;
+        }
+
+        function gameLoop() {
+            const canvas = document.getElementById('snakeCanvas');
+            if (!canvas) { 
+                clearInterval(gameLoopInterval);
+                return;
+            }
+            const ctx = canvas.getContext('2d');
+
+            if (checkCollision(canvas)) {
+                showMessageBox(`Game Over! Score: ${score}`);
+                clearInterval(gameLoopInterval);
+                return;
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawFood(ctx);
+            moveSnake(canvas);
+            drawSnake(ctx);
+
+            gameLoopInterval = setTimeout(gameLoop, 150); 
+        }
+
+        function restartSnake() {
+            if (gameLoopInterval) clearInterval(gameLoopInterval);
+            closeModal();
+            setTimeout(() => openSnakeGame(), 100);
+        }
+
+
+        // Memory Game
+        function openMemoryGame() {
+            const memoryHTML = `
+                <h2>Jeu de Mémoire</h2>
+                <div class="memory-game">
+                    <div style="margin: 1rem 0;">
+                        <span>Coups: <span id="memoryMoves">0</span></span>
+                        <span style="margin-left: 2rem;">Paires: <span id="memoryPairs">0</span>/8</span>
+                        <button class="btn" onclick="restartMemory()" style="margin-left: 2rem;">Recommencer</button>
+                    </div>
+                    <div class="memory-board" id="memoryBoard"></div>
+                </div>
+            `;
+            openModal(memoryHTML);
+            setTimeout(initMemoryGame, 100); 
+        }
+
+        function initMemoryGame() {
+            const symbols = ['🎮', '?', '🎲', '🎪', '🎭', '🎨', '🎵', '🎸'];
+            const cards = [...symbols, ...symbols].sort(() => Math.random() - 0.5);
+            const board = document.getElementById('memoryBoard');
+            let flippedCards = [];
+            let moves = 0;
+            let pairs = 0;
+
+            if (!board) return; 
+
+            board.innerHTML = ''; 
+            document.getElementById('memoryMoves').textContent = '0';
+            document.getElementById('memoryPairs').textContent = '0';
+
+            cards.forEach((symbol, index) => {
+                const card = document.createElement('div');
+                card.className = 'memory-card';
+                card.dataset.symbol = symbol;
+                card.dataset.index = index;
+                card.addEventListener('click', flipCard);
+                board.appendChild(card);
+            });
+
+            function flipCard() {
+                if (flippedCards.length === 2 || this.classList.contains('flipped') || this.classList.contains('matched')) return;
+
+                this.classList.add('flipped');
+                this.textContent = this.dataset.symbol;
+                flippedCards.push(this);
+
+                if (flippedCards.length === 2) {
+                    moves++;
+                    document.getElementById('memoryMoves').textContent = moves;
+
+                    setTimeout(() => {
+                        if (flippedCards[0].dataset.symbol === flippedCards[1].dataset.symbol) {
+                            flippedCards.forEach(card => card.classList.add('matched'));
+                            pairs++;
+                            document.getElementById('memoryPairs').textContent = pairs;
+                            
+                            if (pairs === 8) {
+                                setTimeout(() => showMessageBox(`Félicitations ! Vous avez gagné en ${moves} coups !`), 500);
+                            }
+                        } else {
+                            flippedCards.forEach(card => {
+                                card.classList.remove('flipped');
+                                card.textContent = '';
+                            });
+                        }
+                        flippedCards = [];
+                    }, 1000);
+                }
+            }
+        }
+
+        function restartMemory() {
+            closeModal();
+            setTimeout(() => openMemoryGame(), 100);
+        }
+
+        // 2048 Game
+        let board2048 = [];
+        let score2048 = 0;
+        let isGameOver = false;
+
+        function open2048Game() {
+            const game2048HTML = `
+                <h2>Jeu 2048</h2>
+                <div class="game-2048">
+                    <div style="margin: 1rem 0;">
+                        <span>Score: <span id="game2048Score">0</span></span>
+                        <button class="btn" onclick="restart2048()" style="margin-left: 2rem;">Recommencer</button>
+                    </div>
+                    <div class="game-2048-board" id="game2048Board"></div>
+                    <p>Utilisez les flèches du clavier pour jouer</p>
+                </div>
+            `;
+            openModal(game2048HTML);
+            setTimeout(init2048Game, 100); 
+        }
+
+        function init2048Game() {
+            board2048 = Array(4).fill().map(() => Array(4).fill(0));
+            score2048 = 0;
+            isGameOver = false;
+            document.getElementById('game2048Score').textContent = '0';
+
+            addRandomTile();
+            addRandomTile();
+            updateDisplay2048();
+
+            document.removeEventListener('keydown', handle2048Keydown);
+            document.addEventListener('keydown', handle2048Keydown);
+        }
+
+        function addRandomTile() {
+            const empty = [];
+            for (let i = 0; i < 4; i++) {
+                for (let j = 0; j < 4; j++) {
+                    if (board2048[i][j] === 0) empty.push({x: i, y: j});
+                }
+            }
+            if (empty.length > 0) {
+                const pos = empty[Math.floor(Math.random() * empty.length)];
+                board2048[pos.x][pos.y] = Math.random() < 0.9 ? 2 : 4;
+            }
+        }
+
+        function updateDisplay2048() {
+            const boardElement = document.getElementById('game2048Board');
+            if (!boardElement) return;
+
+            boardElement.innerHTML = '';
+            
+            for (let i = 0; i < 4; i++) {
+                for (let j = 0; j < 4; j++) {
+                    const tile = document.createElement('div');
+                    tile.className = `game-2048-tile ${board2048[i][j] ? 'tile-' + board2048[i][j] : ''}`;
+                    tile.textContent = board2048[i][j] || '';
+                    boardElement.appendChild(tile);
+                }
+            }
+            
+            document.getElementById('game2048Score').textContent = score2048;
+        }
+
+        function slide(row) {
+            let arr = row.filter(val => val !== 0);
+            let missing = 4 - arr.length;
+            let zeros = Array(missing).fill(0);
+            arr = zeros.concat(arr);
+            return arr;
+        }
+
+        function combine(row) {
+            for (let i = 3; i > 0; i--) { 
+                if (row[i] === row[i-1]) {
+                    row[i] *= 2;
+                    score2048 += row[i];
+                    row[i-1] = 0;
+                }
+            }
+            return row;
+        }
+
+        function flip(arr) {
+            return arr.reverse();
+        }
+
+        function transpose(board) {
+            let newBoard = Array(4).fill().map(() => Array(4).fill(0));
+            for (let i = 0; i < 4; i++) {
+                for (let j = 0; j < 4; j++) {
+                    newBoard[i][j] = board[j][i];
+                }
+            }
+            return newBoard;
+        }
+
+        function move2048(direction) {
+            if (isGameOver) return;
+
+            let moved = false;
+
+            // Deep copy of the board to check for movement later
+            let boardBeforeMove = board2048.map(row => [...row]);
+
+            if (direction === 'left') {
+                for (let i = 0; i < 4; i++) {
+                    let row = board2048[i];
+                    let newRow = slide(row);
+                    newRow = combine(newRow);
+                    newRow = slide(newRow);
+                    board2048[i] = newRow;
+                }
+            } else if (direction === 'right') {
+                for (let i = 0; i < 4; i++) {
+                    let row = board2048[i];
+                    row = flip(row);
+                    let newRow = slide(row);
+                    newRow = combine(newRow);
+                    newRow = slide(newRow);
+                    newRow = flip(newRow);
+                    board2048[i] = newRow;
+                }
+            } else if (direction === 'up') {
+                board2048 = transpose(board2048);
+                for (let i = 0; i < 4; i++) {
+                    let row = board2048[i];
+                    let newRow = slide(row);
+                    newRow = combine(newRow);
+                    newRow = slide(newRow);
+                    board2048[i] = newRow;
+                }
+                board2048 = transpose(board2048);
+            } else if (direction === 'down') {
+                board2048 = transpose(board2048);
+                for (let i = 0; i < 4; i++) {
+                    let row = board2048[i];
+                    row = flip(row);
+                    let newRow = slide(row);
+                    newRow = combine(newRow);
+                    newRow = slide(newRow);
+                    newRow = flip(newRow);
+                    board2048[i] = newRow;
+                }
+                board2048 = transpose(board2048);
+            }
+
+            // Check if any tile actually moved or combined
+            moved = JSON.stringify(boardBeforeMove) !== JSON.stringify(board2048);
+
+            if (moved) {
+                addRandomTile();
+                updateDisplay2048();
+                checkGameEnd();
+            }
+        }
+
+        function checkGameEnd() {
+            for (let i = 0; i < 4; i++) {
+                for (let j = 0; j < 4; j++) {
+                    if (board2048[i][j] === 2048) {
+                        if (!isGameOver) {
+                            showMessageBox('Félicitations ! Vous avez atteint 2048 !');
+                            isGameOver = true;
+                        }
+                        return;
+                    }
+                }
+            }
+
+            let hasEmpty = board2048.some(row => row.includes(0));
+            if (!hasEmpty) {
+                let canMove = false;
+                for (let i = 0; i < 4; i++) {
+                    for (let j = 0; j < 3; j++) {
+                        if (board2048[i][j] === board2048[i][j+1] || board2048[j][i] === board2048[j+1][i]) {
+                            canMove = true;
+                            break;
+                        }
+                    }
+                    if (canMove) break;
+                }
+
+                if (!canMove && !isGameOver) {
+                    showMessageBox('Game Over! Plus de mouvements possibles.');
+                    isGameOver = true;
+                }
+            }
+        }
+
+        function handle2048Keydown(e) {
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                e.preventDefault();
+                const direction = e.key.replace('Arrow', '').toLowerCase();
+                move2048(direction);
+            }
+        }
+
+        function restart2048() {
+            if (gameLoopInterval) clearInterval(gameLoopInterval);
+            closeModal();
+            setTimeout(() => open2048Game(), 100);
+        }
+
+        // Reaction Test
+        let reactionState = 'waiting';
+        let reactionStartTime = 0;
+        let reactionTimes = [];
+        let reactionTimeout = null; 
+
+        function openReactionGame() {
+            const reactionHTML = `
+                <h2>Test de Réflexes</h2>
+                <div class="reaction-game">
+                    <div class="reaction-area reaction-wait" id="reactionArea" onclick="reactionClick()">
+                        Cliquez quand l'écran devient vert !
+                    </div>
+                    <div id="reactionResult"></div>
+                    <div id="reactionStats"></div>
+                    <button class="btn" onclick="startReactionTest()">Nouveau test</button>
+                </div>
+            `;
+            openModal(reactionHTML);
+            reactionState = 'waiting';
+            reactionStartTime = 0;
+            reactionTimes = [];
+            if(document.getElementById('reactionResult')) document.getElementById('reactionResult').textContent = '';
+            if(document.getElementById('reactionStats')) document.getElementById('reactionStats').innerHTML = '';
+            setTimeout(startReactionTest, 100);
+        }
+
+        function startReactionTest() {
+            reactionState = 'waiting';
+            const area = document.getElementById('reactionArea');
+            if(!area) return;
+
+            area.className = 'reaction-area reaction-wait';
+            area.textContent = 'Attendez...';
+            document.getElementById('reactionResult').textContent = '';
+            document.getElementById('reactionStats').innerHTML = '';
+
+            if (reactionTimeout) clearTimeout(reactionTimeout);
+
+            const delay = Math.random() * 4000 + 1000; // 1-5 seconds
+            reactionTimeout = setTimeout(() => {
+                if (reactionState === 'waiting') {
+                    reactionState = 'ready';
+                    area.className = 'reaction-area reaction-ready';
+                    area.textContent = 'CLIQUEZ !';
+                    reactionStartTime = Date.now();
+                }
+            }, delay);
+        }
+
+        function reactionClick() {
+            const area = document.getElementById('reactionArea');
+            const result = document.getElementById('reactionResult');
+            if(!area || !result) return;
+
+            if (reactionState === 'waiting') {
+                reactionState = 'early';
+                area.className = 'reaction-area reaction-early';
+                area.textContent = 'Trop tôt ! Recommencez';
+                result.textContent = 'Vous avez cliqué trop tôt !';
+                clearTimeout(reactionTimeout);
+            } else if (reactionState === 'ready') {
+                const reactionTime = Date.now() - reactionStartTime;
+                reactionTimes.push(reactionTime);
+                
+                result.textContent = `Temps de réaction: ${reactionTime}ms`;
+                
+                if (reactionTime < 200) {
+                    result.textContent += ' - Excellent !';
+                } else if (reactionTime < 300) {
+                    result.textContent += ' - Très bien !';
+                } else if (reactionTime < 400) {
+                    result.textContent += ' - Bien !';
+                } else {
+                    result.textContent += ' - Peut mieux faire !';
+                }
+
+                const avg = reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length;
+                const best = Math.min(...reactionTimes);
+                const statsElement = document.getElementById('reactionStats');
+                if (statsElement) {
+                    statsElement.innerHTML = `
+                        <p>Meilleur temps: ${best}ms</p>
+                        <p>Temps moyen: ${Math.round(avg)}ms</p>
+                        <p>Tests effectués: ${reactionTimes.length}</p>
+                    `;
+                }
+
+                area.className = 'reaction-area';
+                area.textContent = 'Cliquez sur "Nouveau test" pour recommencer';
+                reactionState = 'finished';
+            }
+        }
+
+
+        // QR Generator (Improved and functional)
+        function openQRGenerator() {
+            const qrHTML = `
+                <h2>Générateur QR Code</h2>
+                <div class="qr-generator">
+                    <input type="text" class="qr-input" id="qrInput" placeholder="Entrez votre texte ou URL...">
+                    <button class="btn" onclick="generateQR()">Générer QR Code</button>
+                    <div class="qr-result" id="qrResult" style="padding: 10px;">
+                        <!-- QR Code will be rendered here by qrcode.js -->
+                        Entrez du texte ci-dessus pour générer un QR Code
+                    </div>
+                    <button class="btn" onclick="downloadQR()" id="downloadBtn" style="display: none;">Télécharger</button>
+                </div>
+            `;
+            openModal(qrHTML);
+            const qrResultDiv = document.getElementById('qrResult');
+            if (qrResultDiv) qrResultDiv.innerHTML = 'Entrez du texte ci-dessus pour générer un QR Code';
+            const downloadBtn = document.getElementById('downloadBtn');
+            if (downloadBtn) downloadBtn.style.display = 'none';
+        }
+
+        // Basic QR Code encoding functions (simplified for in-browser use)
+        // This is not a full QR code library, but generates scannable codes for basic text/URLs.
+        function getQRCodeMatrix(text) {
+            const version = 1; // Simplest QR Code version
+            const cellSize = 25 + (version - 1) * 4; // V1 is 21x21, each version adds 4 modules
+            let matrix = Array(cellSize).fill(0).map(() => Array(cellSize).fill(0));
+
+            // Basic encoding: Convert text to binary string
+            let binaryString = '';
+            for (let i = 0; i < text.length; i++) {
+                binaryString += text.charCodeAt(i).toString(2).padStart(8, '0');
+            }
+
+            // Simple data placement: Fill the matrix top-left downwards
+            let binIndex = 0;
+            for (let col = 0; col < cellSize; col++) {
+                for (let row = 0; row < cellSize; row++) {
+                    if (binIndex < binaryString.length) {
+                        matrix[row][col] = parseInt(binaryString[binIndex]);
+                        binIndex++;
+                    } else {
+                        matrix[row][col] = 0; // Fill remaining with white (quiet zone or padding)
+                    }
+                }
+            }
+
+            // Add finder patterns (simplified fixed corners)
+            function drawFinderPattern(startRow, startCol) {
+                for (let r = 0; r < 7; r++) {
+                    for (let c = 0; c < 7; c++) {
+                        if (r === 0 || r === 6 || c === 0 || c === 6 || (r > 1 && r < 5 && c > 1 && c < 5)) {
+                            matrix[startRow + r][startCol + c] = 1; // Black
+                        } else {
+                            matrix[startRow + r][startCol + c] = 0; // White
+                        }
+                    }
+                }
+            }
+
+            drawFinderPattern(0, 0);
+            drawFinderPattern(0, cellSize - 7);
+            drawFinderPattern(cellSize - 7, 0);
+
+            return matrix;
+        }
+
+        function generateQR() {
+			const textInput = document.getElementById('qrInput');
+			const text = textInput.value.trim();
+			const qrResult = document.getElementById('qrResult');
+			const downloadBtn = document.getElementById('downloadBtn');
+
+			if (!text) {
+				showMessageBox('Veuillez entrer du texte ou une URL pour générer le QR Code.');
+				return;
+			}
+
+			qrResult.innerHTML = ''; // Clear previous
+
+			const qrDiv = document.createElement('div');
+			qrDiv.id = 'generatedQR';
+			qrResult.appendChild(qrDiv);
+
+			const qr = new QRCode(qrDiv, {
+				text: text,
+				width: 200,
+				height: 200,
+				colorDark : "#000000",
+				colorLight : "#ffffff",
+				correctLevel : QRCode.CorrectLevel.H
+			});
+
+			downloadBtn.style.display = 'inline-block';
+		}
+
+		 function downloadQR() {
+			const canvas = document.querySelector('#generatedQR canvas');
+			if (!canvas) {
+				showMessageBox('Aucun QR Code à télécharger.');
+				return;
+			}
+
+			const link = document.createElement('a');
+			link.download = 'qrcode.png';
+			link.href = canvas.toDataURL('image/png');
+			link.click();
+		}
+
+
+
+        // Timer & Stopwatch
+        let timerState = 'stopped';
+        let timerTime = 0;
+        let stopwatchTime = 0;
+        let timerMode = 'timer'; // 'timer' or 'stopwatch'
+        let timerInterval;
+
+        function openTimer() {
+            const timerHTML = `
+                <h2>Minuterie & Chrono</h2>
+                <div class="timer-container">
+                    <div class="timer-display" id="timerDisplay">00:00:00</div>
+                    
+                    <div style="margin: 2rem 0;">
+                        <h3>Minuterie</h3>
+                        <div class="timer-controls">
+                            <input type="number" class="timer-input" id="timerHours" placeholder="H" min="0" max="23" value="0">
+                            <input type="number" class="timer-input" id="timerMinutes" placeholder="M" min="0" max="59" value="5">
+                            <input type="number" class="timer-input" id="timerSeconds" placeholder="S" min="0" max="59" value="0">
+                        </div>
+                        <div class="timer-controls">
+                            <button class="btn" onclick="startTimer()">Démarrer</button>
+                            <button class="btn" onclick="pauseTimer()">Pause</button>
+                            <button class="btn" onclick="resetTimer()">Reset</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3>Chronomètre</h3>
+                        <div class="timer-controls">
+                            <button class="btn" onclick="startStopwatch()">Démarrer</button>
+                            <button class="btn" onclick="pauseStopwatch()">Pause</button>
+                            <button class="btn" onclick="resetStopwatch()">Reset</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            openModal(timerHTML);
+            timerState = 'stopped';
+            timerTime = 0;
+            stopwatchTime = 0;
+            updateTimerDisplay();
+            if (timerInterval) clearInterval(timerInterval);
+        }
+
+        function formatTime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function updateTimerDisplay() {
+            const display = document.getElementById('timerDisplay');
+            if (display) {
+                display.textContent = formatTime(timerMode === 'timer' ? timerTime : stopwatchTime);
+            }
+        }
+
+        function startTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+
+            const hoursInput = document.getElementById('timerHours');
+            const minutesInput = document.getElementById('timerMinutes');
+            const secondsInput = document.getElementById('timerSeconds');
+
+            const hours = parseInt(hoursInput ? hoursInput.value : 0) || 0;
+            const minutes = parseInt(minutesInput ? minutesInput.value : 0) || 0;
+            const seconds = parseInt(secondsInput ? secondsInput.value : 0) || 0;
+            
+            if (timerState === 'stopped' || timerMode !== 'timer') {
+                timerTime = hours * 3600 + minutes * 60 + seconds;
+            }
+
+            if (timerTime <= 0) {
+                showMessageBox('Veuillez définir une durée pour la minuterie.');
+                return;
+            }
+
+            timerMode = 'timer';
+            timerState = 'running';
+
+            timerInterval = setInterval(() => {
+                if (timerTime > 0) {
+                    timerTime--;
+                    updateTimerDisplay();
+                } else {
+                    showMessageBox('Temps écoulé !');
+                    pauseTimer();
+                    timerState = 'stopped';
+                }
+            }, 1000);
+
+            updateTimerDisplay();
+        }
+
+        function pauseTimer() {
+            timerState = 'paused';
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        function resetTimer() {
+            timerState = 'stopped';
+            timerTime = 0;
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            updateTimerDisplay();
+            const hoursInput = document.getElementById('timerHours');
+            const minutesInput = document.getElementById('timerMinutes');
+            const secondsInput = document.getElementById('timerSeconds');
+            if (hoursInput) hoursInput.value = '0';
+            if (minutesInput) minutesInput.value = '5';
+            if (secondsInput) secondsInput.value = '0';
+        }
+
+        function startStopwatch() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+
+            timerMode = 'stopwatch';
+            timerState = 'running';
+
+            timerInterval = setInterval(() => {
+                stopwatchTime++;
+                updateTimerDisplay();
+            }, 1000);
+        }
+
+        function pauseStopwatch() {
+            timerState = 'paused';
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        function resetStopwatch() {
+            timerState = 'stopped';
+            stopwatchTime = 0;
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            updateTimerDisplay();
+        }
+
+        // Color Palette Generator
+        function openColorPalette() {
+            const paletteHTML = `
+                <h2>Générateur de Palettes</h2>
+                <div class="color-palette">
+                    <button class="btn" onclick="generatePalette()">Nouvelle Palette</button>
+                    <button class="btn" onclick="generateHarmoniousPalette()">Palette Harmonieuse</button>
+                    <div class="palette-display" id="paletteDisplay"></div>
+                    <p>Cliquez sur une couleur pour copier son code hexadécimal</p>
+                </div>
+            `;
+            openModal(paletteHTML);
+            setTimeout(generatePalette, 50); 
+        }
+
+        function generatePalette() {
+            const colors = [];
+            for (let i = 0; i < 5; i++) {
+                const color = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
+                colors.push(color);
+            }
+            displayPalette(colors);
+        }
+
+        function generateHarmoniousPalette() {
+            const baseHue = Math.floor(Math.random() * 360);
+            const colors = [];
+            
+            colors.push(hslToHex(baseHue, 70, 50));
+            colors.push(hslToHex((baseHue + 180) % 360, 70, 50));
+            colors.push(hslToHex(baseHue, 70, 30));
+            colors.push(hslToHex(baseHue, 70, 70));
+            colors.push(hslToHex((baseHue + 180) % 360, 70, 30));
+            
+            displayPalette(colors);
+        }
+
+        function hslToHex(h, s, l) {
+            l /= 100;
+            const a = s * Math.min(l, 1 - l) / 100;
+            const f = n => {
+                const k = (n + h / 30) % 12;
+                const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+                return Math.round(255 * color).toString(16).padStart(2, '0');
+            };
+            return `#${f(0)}${f(8)}${f(4)}`;
+        }
+
+        function displayPalette(colors) {
+            const display = document.getElementById('paletteDisplay');
+            if (!display) return;
+
+            display.innerHTML = '';
+            
+            colors.forEach(color => {
+                const colorBox = document.createElement('div');
+                colorBox.className = 'color-box';
+                colorBox.style.backgroundColor = color;
+                colorBox.textContent = color;
+                colorBox.onclick = () => {
+                    navigator.clipboard.writeText(color).then(() => {
+                        showMessageBox(`Couleur ${color} copiée !`);
+                    }).catch(err => {
+                        console.error('Erreur de copie:', err);
+                        showMessageBox('Échec de la copie.');
+                    });
+                };
+                display.appendChild(colorBox);
+            });
+        }
+
+        // Linux Terminal (redirect to external link)
+        function openLinuxTerminal() {
+            window.open('https://flaviengibs.github.io/linuxgibs', '_blank');
+        }
+
+        // Name Generator
+        function openNameGenerator() {
+            const nameHTML = `
+                <h2>Générateur de Noms</h2>
+                <div style="text-align: center; max-width: 500px; margin: 0 auto;">
+                    <div style="margin: 2rem 0;">
+                        <label>Type de nom: </label>
+                        <select id="nameType" style="padding: 0.5rem; margin: 0.5rem; border-radius: 5px; background: rgba(255,255,255,0.1); color: white; border: none;">
+                            <option value="person">Personne</option>
+                            <option value="fantasy">Fantasy</option>
+                            <option value="company">Entreprise</option>
+                            <option value="project">Projet</option>
+                            <option value="band">Groupe de musique</option>
+                        </select>
+                    </div>
+                    <button class="btn" onclick="generateName()">Générer un nom</button>
+                    <div id="generatedName" style="font-size: 2rem; margin: 2rem 0; padding: 2rem; background: rgba(0,0,0,0.3); border-radius: 15px; min-height: 80px; display: flex; align-items: center; justify-content: center;">
+                        Cliquez pour générer un nom
+                    </div>
+                    <button class="btn" onclick="copyName()">Copier le nom</button>
+                </div>
+            `;
+            openModal(nameHTML);
+            const generatedNameDiv = document.getElementById('generatedName');
+            if (generatedNameDiv) generatedNameDiv.textContent = 'Cliquez pour générer un nom';
+        }
+
+        function generateName() {
+            const typeSelect = document.getElementById('nameType');
+            if (!typeSelect) return;
+            const type = typeSelect.value;
+            const names = {
+                person: {
+                    first: ['Alex', 'Jordan', 'Morgan', 'Casey', 'Riley', 'Avery', 'Quinn', 'Sage', 'River', 'Phoenix'],
+                    last: ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez']
+                },
+                fantasy: {
+                    first: ['Aelindra', 'Thorin', 'Lyralei', 'Gandor', 'Evelynn', 'Kaelan', 'Seraphina', 'Draven', 'Zephyr', 'Aria'],
+                    last: ['Shadowbane', 'Starweaver', 'Ironforge', 'Moonwhisper', 'Flameheart', 'Stormcaller', 'Brightblade', 'Nightfall', 'Goldmane', 'Swiftarrow']
+                },
+                company: [
+                    'TechNova Solutions', 'Digital Forge', 'Quantum Labs', 'Infinite Systems', 'Crystal Technologies',
+                    'Nexus Innovations', 'Stellar Dynamics', 'Phoenix Industries', 'Horizon Ventures', 'Summit Technologies'
+                ],
+                project: [
+                    'Project Phoenix', 'Operation Starlight', 'Mission Horizon', 'Task Force Alpha', 'Project Nebula',
+                    'Operation Thunder', 'Mission Crystal', 'Project Omega', 'Task Force Zero', 'Operation Quantum'
+                ],
+                band: [
+                    'Electric Dreams', 'Neon Shadows', 'Cosmic Echoes', 'Digital Rebellion', 'Midnight Frequency',
+                    'Stellar Noise', 'Urban Legends', 'Crystal Method', 'Sonic Paradox', 'Echo Chamber'
+                ]
+            };
+
+            let generatedName;
+            if (type === 'person' || type === 'fantasy') {
+                const first = names[type].first[Math.floor(Math.random() * names[type].first.length)];
+                const last = names[type].last[Math.floor(Math.random() * names[type].last.length)];
+                generatedName = `${first} ${last}`;
+            } else {
+                generatedName = names[type][Math.floor(Math.random() * names[type].length)];
+            }
+
+            const generatedNameDiv = document.getElementById('generatedName');
+            if (generatedNameDiv) generatedNameDiv.textContent = generatedName;
+        }
+
+        function copyName() {
+            const nameElement = document.getElementById('generatedName');
+            if (nameElement && nameElement.textContent && nameElement.textContent !== 'Cliquez pour générer un nom') {
+                navigator.clipboard.writeText(nameElement.textContent).then(() => {
+                    showMessageBox('Nom copié !');
+                }).catch(err => {
+                    console.error('Erreur de copie:', err);
+                    showMessageBox('Échec de la copie.');
+                });
+            }
+        }
+
+        // Dice Roller
+        function openDiceRoller() {
+            const diceHTML = `
+                <h2>Lanceur de Dés</h2>
+                <div style="text-align: center; max-width: 400px; margin: 0 auto;">
+                    <div style="margin: 2rem 0;">
+                        <label>Nombre de dés (1-6): </label>
+                        <input type="number" id="numDice" min="1" max="6" value="1" style="padding: 0.5rem; border-radius: 5px; border: none; background: rgba(255,255,255,0.1); color: white;">
+                    </div>
+                    <button class="btn" onclick="rollDice()">Lancer les dés</button>
+                    <div id="diceResults" style="display: flex; justify-content: center; gap: 1rem; margin: 2rem 0; font-size: 3rem; min-height: 80px; align-items: center;">
+                        </div>
+                    <div id="diceTotal" style="font-size: 1.5rem; font-weight: bold;"></div>
+                </div>
+            `;
+            openModal(diceHTML);
+            const diceResultsDiv = document.getElementById('diceResults');
+            if (diceResultsDiv) diceResultsDiv.innerHTML = '';
+            const diceTotalDiv = document.getElementById('diceTotal');
+            if (diceTotalDiv) diceTotalDiv.textContent = '';
+        }
+
+        function rollDice() {
+            const numDiceInput = document.getElementById('numDice');
+            if (!numDiceInput) return;
+            const numDice = parseInt(numDiceInput.value) || 1;
+            const diceResultsDiv = document.getElementById('diceResults');
+            const diceTotalDiv = document.getElementById('diceTotal');
+
+            if (!diceResultsDiv || !diceTotalDiv) return;
+
+            let total = 0;
+            diceResultsDiv.innerHTML = '';
+
+            for (let i = 0; i < numDice; i++) {
+                const roll = Math.floor(Math.random() * 6) + 1;
+                total += roll;
+                const dieSpan = document.createElement('span');
+                dieSpan.textContent = ` ${roll} `;
+                dieSpan.style.margin = '0 5px';
+                dieSpan.style.padding = '10px 15px';
+                dieSpan.style.borderRadius = '8px';
+                dieSpan.style.background = 'rgba(255,255,255,0.2)';
+                dieSpan.style.boxShadow = '2px 2px 5px rgba(0,0,0,0.3)';
+                diceResultsDiv.appendChild(dieSpan);
+            }
+            diceTotalDiv.textContent = `Total: ${total}`;
+        }
+
+        // Unit Converter
+        function openUnitConverter() {
+            const unitHTML = `
+                <h2>Convertisseur d'Unités</h2>
+                <div class="unit-converter">
+                    <div class="unit-converter-controls">
+                        <label for="conversionType">Type de conversion:</label>
+                        <select id="conversionType" onchange="updateUnitConverter()">
+                            <option value="temp">Température (C°/F°)</option>
+                            <option value="length">Longueur (m/ft)</option>
+                        </select>
+                    </div>
+                    <div class="unit-converter-controls">
+                        <input type="number" id="inputValue" placeholder="Valeur à convertir" onkeyup="convertUnits()" onchange="convertUnits()">
+                        <select id="inputUnit" onchange="convertUnits()">
+                            <option value="celsius">Celsius (°C)</option>
+                            <option value="fahrenheit">Fahrenheit (°F)</option>
+                        </select>
+                    </div>
+                    <div class="unit-converter-controls">
+                        <input type="text" id="outputValue" placeholder="Résultat" readonly>
+                        <select id="outputUnit" onchange="convertUnits()">
+                            <option value="fahrenheit">Fahrenheit (°F)</option>
+                            <option value="celsius">Celsius (°C)</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+            openModal(unitHTML);
+            setTimeout(updateUnitConverter, 50);
+        }
+
+        function updateUnitConverter() {
+            const type = document.getElementById('conversionType').value;
+            const inputUnitSelect = document.getElementById('inputUnit');
+            const outputUnitSelect = document.getElementById('outputUnit');
+
+            if (!inputUnitSelect || !outputUnitSelect) return;
+
+            inputUnitSelect.innerHTML = '';
+            outputUnitSelect.innerHTML = '';
+
+            if (type === 'temp') {
+                inputUnitSelect.innerHTML = `
+                    <option value="celsius">Celsius (°C)</option>
+                    <option value="fahrenheit">Fahrenheit (°F)</option>
+                `;
+                outputUnitSelect.innerHTML = `
+                    <option value="fahrenheit">Fahrenheit (°F)</option>
+                    <option value="celsius">Celsius (°C)</option>
+                `;
+            } else if (type === 'length') {
+                inputUnitSelect.innerHTML = `
+                    <option value="meters">Mètres (m)</option>
+                    <option value="feet">Pieds (ft)</option>
+                `;
+                outputUnitSelect.innerHTML = `
+                    <option value="feet">Pieds (ft)</option>
+                    <option value="meters">Mètres (m)</option>
+                `;
+            }
+            convertUnits();
+        }
+
+        function convertUnits() {
+            const type = document.getElementById('conversionType').value;
+            const inputValue = parseFloat(document.getElementById('inputValue').value);
+            const inputUnit = document.getElementById('inputUnit').value;
+            const outputUnit = document.getElementById('outputUnit').value;
+            const outputValueElement = document.getElementById('outputValue');
+
+            if (isNaN(inputValue)) {
+                if (outputValueElement) outputValueElement.value = '';
+                return;
+            }
+
+            let result;
+
+            if (type === 'temp') {
+                if (inputUnit === 'celsius' && outputUnit === 'fahrenheit') {
+                    result = (inputValue * 9/5) + 32;
+                } else if (inputUnit === 'fahrenheit' && outputUnit === 'celsius') {
+                    result = (inputValue - 32) * 5/9;
+                } else {
+                    result = inputValue;
+                }
+            } else if (type === 'length') {
+                const metersToFeet = 3.28084;
+                if (inputUnit === 'meters' && outputUnit === 'feet') {
+                    result = inputValue * metersToFeet;
+                } else if (inputUnit === 'feet' && outputUnit === 'meters') {
+                    result = inputValue / metersToFeet;
+                } else {
+                    result = inputValue;
+                }
+            }
+            if (outputValueElement) outputValueElement.value = result !== undefined ? result.toFixed(2) : '';
+        }
+
+        // Lorem Ipsum Generator
+        function openLoremGenerator() {
+            const loremHTML = `
+                <h2>Générateur Lorem Ipsum</h2>
+                <div class="lorem-generator">
+                    <div style="margin: 1rem 0;">
+                        <label for="numParagraphs">Nombre de paragraphes (1-10):</label>
+                        <input type="number" id="numParagraphs" min="1" max="10" value="3" onchange="generateLorem()">
+                    </div>
+                    <button class="btn" onclick="generateLorem()">Générer Lorem Ipsum</button>
+                    <div class="lorem-output" id="loremOutput"></div>
+                    <button class="btn" onclick="copyLorem()" style="margin-top: 1rem;">Copier le texte</button>
+                </div>
+            `;
+            openModal(loremHTML);
+            setTimeout(generateLorem, 50);
+        }
+
+        const loremText = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.`;
+
+        function generateLorem() {
+            const numParagraphsInput = document.getElementById('numParagraphs');
+            if (!numParagraphsInput) return;
+
+            const numParagraphs = parseInt(numParagraphsInput.value);
+            const loremOutputDiv = document.getElementById('loremOutput');
+            if (!loremOutputDiv) return;
+
+            let output = '';
+            for (let i = 0; i < numParagraphs; i++) {
+                output += loremText + (i < numParagraphs - 1 ? '\n\n' : '');
+            }
+            loremOutputDiv.textContent = output;
+        }
+
+        function copyLorem() {
+            const loremOutputDiv = document.getElementById('loremOutput');
+            if (loremOutputDiv && loremOutputDiv.textContent) {
+                navigator.clipboard.writeText(loremOutputDiv.textContent).then(() => {
+                    showMessageBox('Texte Lorem Ipsum copié !');
+                }).catch(err => {
+                    console.error('Erreur de copie:', err);
+                    showMessageBox('Échec de la copie.');
+                });
+            }
+        }
+
+        // JSON Viewer
+        function openJSONViewer() {
+            const jsonHTML = `
+                <h2>Visualiseur JSON</h2>
+                <div class="json-viewer">
+                    <p>Collez votre JSON ici:</p>
+                    <textarea id="jsonInput" rows="10" placeholder="{ &quot;cle&quot;: &quot;valeur&quot; }" onkeyup="formatJSON()"></textarea>
+                    <button class="btn" onclick="formatJSON()">Formater JSON</button>
+                    <p style="margin-top: 1rem;">JSON Formatté:</p>
+                    <div class="json-output" id="jsonOutput"></div>
+                    <button class="btn" onclick="copyJSON()" style="margin-top: 1rem;">Copier JSON Formatté</button>
+                </div>
+            `;
+            openModal(jsonHTML);
+            const jsonInput = document.getElementById('jsonInput');
+            if (jsonInput) jsonInput.value = '';
+            const jsonOutput = document.getElementById('jsonOutput');
+            if (jsonOutput) jsonOutput.textContent = '';
+        }
+
+        function formatJSON() {
+            const jsonInput = document.getElementById('jsonInput');
+            const jsonOutput = document.getElementById('jsonOutput');
+
+            if (!jsonInput || !jsonOutput) return;
+
+            try {
+                const rawJSON = jsonInput.value;
+                const parsedJSON = JSON.parse(rawJSON);
+                jsonOutput.textContent = JSON.stringify(parsedJSON, null, 2);
+                jsonOutput.style.color = '#e0e0e0';
+            } catch (e) {
+                jsonOutput.textContent = 'Erreur: JSON invalide. ' + e.message;
+                jsonOutput.style.color = '#ff6b6b';
+            }
+        }
+
+        function copyJSON() {
+            const jsonOutput = document.getElementById('jsonOutput');
+            if (jsonOutput && jsonOutput.textContent && !jsonOutput.textContent.startsWith('Erreur:')) {
+                navigator.clipboard.writeText(jsonOutput.textContent).then(() => {
+                    showMessageBox('JSON formatté copié !');
+                }).catch(err => {
+                    console.error('Erreur de copie:', err);
+                    showMessageBox('Échec de la copie.');
+                });
+            } else {
+                showMessageBox('Rien à copier ou JSON invalide.');
+            }
+        }
+
+
+        // Pong Game (Basic Implementation)
+        let pongGameInterval;
+        let paddle1Y, paddle2Y, ballX, ballY, ballDX, ballDY;
+        let score1, score2;
+        const PADDLE_HEIGHT = 80;
+        const PADDLE_WIDTH = 10;
+        const BALL_SIZE = 10;
+        const CANVAS_WIDTH = 600;
+        const CANVAS_HEIGHT = 400;
+
+        function openPongGame() {
+            const pongHTML = `
+                <h2>Pong</h2>
+                <div style="text-align: center;">
+                    <canvas id="pongCanvas" width="${CANVAS_WIDTH}" height="${CANVAS_HEIGHT}"></canvas>
+                    <div class="pong-controls">
+                        <p>Joueur 1 (Gauche): Z / S</p>
+                        <p>Joueur 2 (Droite): ▲ / ▼</p>
+                        <p>Score: <span id="pongScore1">0</span> - <span id="pongScore2">0</span></p>
+                        <button class="btn" onclick="restartPong()">Recommencer</button>
+                    </div>
+                </div>
+            `;
+            openModal(pongHTML);
+            setTimeout(initPongGame, 100);
+            document.addEventListener('keydown', handlePongKeydown);
+            document.body.style.overflow = 'hidden'; // Prevent scrolling with arrow keys
+        }
+
+        function initPongGame() {
+            const canvas = document.getElementById('pongCanvas');
+            if (!canvas) return;
+
+            paddle1Y = CANVAS_HEIGHT / 2 - PADDLE_HEIGHT / 2;
+            paddle2Y = CANVAS_HEIGHT / 2 - PADDLE_HEIGHT / 2;
+            score1 = 0;
+            score2 = 0;
+            document.getElementById('pongScore1').textContent = score1;
+            document.getElementById('pongScore2').textContent = score2;
+            resetBall();
+
+            if (pongGameInterval) clearInterval(pongGameInterval);
+            pongGameInterval = setInterval(updatePongGame, 1000 / 60); // 60 FPS
+        }
+
+        function resetBall() {
+            ballX = CANVAS_WIDTH / 2;
+            ballY = CANVAS_HEIGHT / 2;
+            ballDX = (Math.random() > 0.5 ? 1 : -1) * 5; // Random initial direction
+            ballDY = (Math.random() * 2 - 1) * 3; // Random vertical speed
+        }
+
+        function updatePongGame() {
+            const canvas = document.getElementById('pongCanvas');
+            if (!canvas) {
+                clearInterval(pongGameInterval);
+                return;
+            }
+            const ctx = canvas.getContext('2d');
+
+            // Move ball
+            ballX += ballDX;
+            ballY += ballDY;
+
+            // Ball collision with top/bottom walls
+            if (ballY < 0 || ballY > CANVAS_HEIGHT - BALL_SIZE) {
+                ballDY *= -1;
+            }
+
+            // Ball collision with paddles
+            // Player 1
+            if (ballX < PADDLE_WIDTH && ballY + BALL_SIZE > paddle1Y && ballY < paddle1Y + PADDLE_HEIGHT) {
+                ballDX *= -1;
+            }
+            // Player 2
+            if (ballX > CANVAS_WIDTH - PADDLE_WIDTH - BALL_SIZE && ballY + BALL_SIZE > paddle2Y && ballY < paddle2Y + PADDLE_HEIGHT) {
+                ballDX *= -1;
+            }
+
+            // Ball out of bounds (scoring)
+            if (ballX < 0) {
+                score2++;
+                document.getElementById('pongScore2').textContent = score2;
+                resetBall();
+            } else if (ballX > CANVAS_WIDTH) {
+                score1++;
+                document.getElementById('pongScore1').textContent = score1;
+                resetBall();
+            }
+
+            // Draw everything
+            ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+            ctx.fillStyle = '#eee';
+            ctx.fillRect(0, paddle1Y, PADDLE_WIDTH, PADDLE_HEIGHT); // Player 1 paddle
+            ctx.fillRect(CANVAS_WIDTH - PADDLE_WIDTH, paddle2Y, PADDLE_WIDTH, PADDLE_HEIGHT); // Player 2 paddle
+            ctx.fillRect(ballX, ballY, BALL_SIZE, BALL_SIZE); // Ball
+        }
+
+        function handlePongKeydown(e) {
+            e.preventDefault(); // Prevent page scrolling
+            switch (e.key) {
+                case 'z':
+                    paddle1Y = Math.max(0, paddle1Y - 15);
+                    break;
+                case 's':
+                    paddle1Y = Math.min(CANVAS_HEIGHT - PADDLE_HEIGHT, paddle1Y + 15);
+                    break;
+                case 'ArrowUp':
+                    paddle2Y = Math.max(0, paddle2Y - 15);
+                    break;
+                case 'ArrowDown':
+                    paddle2Y = Math.min(CANVAS_HEIGHT - PADDLE_HEIGHT, paddle2Y + 15);
+                    break;
+            }
+        }
+
+        function restartPong() {
+            if (pongGameInterval) clearInterval(pongGameInterval);
+            closeModal();
+            setTimeout(() => openPongGame(), 100);
+        }
+
+        // Tetris Game (Basic Implementation)
+        let tetrisCanvas, tetrisCtx;
+        const TETRIS_COLS = 10;
+        const TETRIS_ROWS = 20;
+        const TETRIS_BLOCK_SIZE = 20;
+        let tetrisBoard = [];
+        let currentPiece, nextPiece;
+        let currentX, currentY;
+        let tetrisScore = 0;
+        let tetrisGameOver = false;
+        let tetrisGameInterval;
+        const TETROMINOS = {
+            'I': [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],
+            'J': [[1,0,0],[1,1,1],[0,0,0]],
+            'L': [[0,0,1],[1,1,1],[0,0,0]],
+            'O': [[1,1],[1,1]],
+            'S': [[0,1,1],[1,1,0],[0,0,0]],
+            'T': [[0,1,0],[1,1,1],[0,0,0]],
+            'Z': [[1,1,0],[0,1,1],[0,0,0]]
+        };
+        const TETROMINO_COLORS = {
+            'I': 'cyan', 'J': 'blue', 'L': 'orange', 'O': 'yellow',
+            'S': 'lime', 'T': 'purple', 'Z': 'red'
+        };
+
+        function openTetrisGame() {
+            const tetrisHTML = `
+                <h2>Tetris</h2>
+                <div style="text-align: center;">
+                    <canvas id="tetrisCanvas" width="${TETRIS_COLS * TETRIS_BLOCK_SIZE}" height="${TETRIS_ROWS * TETRIS_BLOCK_SIZE}"></canvas>
+                    <div class="tetris-info">
+                        <p>Score: <span id="tetrisScore">0</span></p>
+                        <button class="btn" onclick="restartTetris()">Recommencer</button>
+                    </div>
+                    <p>Contrôles: Gauche/Droite/Bas (Flèches), Rotation (Haut)</p>
+                </div>
+            `;
+            openModal(tetrisHTML);
+            setTimeout(initTetrisGame, 100);
+            document.addEventListener('keydown', handleTetrisKeydown);
+            document.body.style.overflow = 'hidden'; // Prevent page scrolling
+        }
+
+        function initTetrisGame() {
+            tetrisCanvas = document.getElementById('tetrisCanvas');
+            if (!tetrisCanvas) return;
+            tetrisCtx = tetrisCanvas.getContext('2d');
+            tetrisBoard = Array(TETRIS_ROWS).fill(0).map(() => Array(TETRIS_COLS).fill(0));
+            tetrisScore = 0;
+            tetrisGameOver = false;
+            document.getElementById('tetrisScore').textContent = tetrisScore;
+
+            if (tetrisGameInterval) clearInterval(tetrisGameInterval);
+            newPiece();
+            tetrisGameInterval = setInterval(gameLoopTetris, 500); // Piece drops every 500ms
+        }
+
+        function drawBlock(x, y, color) {
+            tetrisCtx.fillStyle = color;
+            tetrisCtx.strokeStyle = 'black';
+            tetrisCtx.lineWidth = 1;
+            tetrisCtx.fillRect(x * TETRIS_BLOCK_SIZE, y * TETRIS_BLOCK_SIZE, TETRIS_BLOCK_SIZE, TETRIS_BLOCK_SIZE);
+            tetrisCtx.strokeRect(x * TETRIS_BLOCK_SIZE, y * TETRIS_BLOCK_SIZE, TETRIS_BLOCK_SIZE, TETRIS_BLOCK_SIZE);
+        }
+
+        function drawBoard() {
+            tetrisCtx.clearRect(0, 0, tetrisCanvas.width, tetrisCanvas.height);
+            for (let r = 0; r < TETRIS_ROWS; r++) {
+                for (let c = 0; c < TETRIS_COLS; c++) {
+                    if (tetrisBoard[r][c] !== 0) {
+                        drawBlock(c, r, tetrisBoard[r][c]);
+                    }
+                }
+            }
+        }
+
+        function drawPiece() {
+            if (!currentPiece) return;
+            const shape = currentPiece.shape;
+            const color = currentPiece.color;
+            for (let r = 0; r < shape.length; r++) {
+                for (let c = 0; c < shape[r].length; c++) {
+                    if (shape[r][c]) {
+                        drawBlock(currentX + c, currentY + r, color);
+                    }
+                }
+            }
+        }
+
+        function collide(x, y, pieceShape) {
+            for (let r = 0; r < pieceShape.length; r++) {
+                for (let c = 0; c < pieceShape[r].length; c++) {
+                    if (pieceShape[r][c]) {
+                        const newX = x + c;
+                        const newY = y + r;
+                        if (newX < 0 || newX >= TETRIS_COLS || newY >= TETRIS_ROWS || (newY >= 0 && tetrisBoard[newY][newX] !== 0)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        function newPiece() {
+            const keys = Object.keys(TETROMINOS);
+            const randomKey = keys[Math.floor(Math.random() * keys.length)];
+            currentPiece = {
+                shape: TETROMINOS[randomKey],
+                color: TETROMINO_COLORS[randomKey]
+            };
+            currentX = Math.floor(TETRIS_COLS / 2) - Math.floor(currentPiece.shape[0].length / 2);
+            currentY = 0;
+
+            if (collide(currentX, currentY, currentPiece.shape)) {
+                tetrisGameOver = true;
+                clearInterval(tetrisGameInterval);
+                showMessageBox(`Game Over! Score: ${tetrisScore}`);
+            }
+        }
+
+        function mergePiece() {
+            const shape = currentPiece.shape;
+            const color = currentPiece.color;
+            for (let r = 0; r < shape.length; r++) {
+                for (let c = 0; c < shape[r].length; c++) {
+                    if (shape[r][c]) {
+                        tetrisBoard[currentY + r][currentX + c] = color;
+                    }
+                }
+            }
+        }
+
+        function clearLines() {
+            let linesCleared = 0;
+            for (let r = TETRIS_ROWS - 1; r >= 0; r--) {
+                if (tetrisBoard[r].every(cell => cell !== 0)) {
+                    tetrisBoard.splice(r, 1);
+                    tetrisBoard.unshift(Array(TETRIS_COLS).fill(0));
+                    linesCleared++;
+                    r++; // Check the new row at this index
+                }
+            }
+            if (linesCleared > 0) {
+                tetrisScore += linesCleared * 100; // Simple scoring
+                document.getElementById('tetrisScore').textContent = tetrisScore;
+            }
+        }
+
+        function rotate(pieceShape) {
+            const newShape = Array(pieceShape[0].length).fill(0).map(() => Array(pieceShape.length).fill(0));
+            for (let r = 0; r < pieceShape.length; r++) {
+                for (let c = 0; c < pieceShape[r].length; c++) {
+                    newShape[c][pieceShape.length - 1 - r] = pieceShape[r][c];
+                }
+            }
+            return newShape;
+        }
+
+        function gameLoopTetris() {
+            if (tetrisGameOver) return;
+
+            if (!collide(currentX, currentY + 1, currentPiece.shape)) {
+                currentY++;
+            } else {
+                mergePiece();
+                clearLines();
+                newPiece();
+            }
+            drawBoard();
+            drawPiece();
+        }
+
+        function handleTetrisKeydown(e) {
+            if (tetrisGameOver) return;
+            let newX = currentX;
+            let newY = currentY;
+            let newShape = currentPiece.shape;
+
+            e.preventDefault(); // Prevent page scrolling
+
+            switch (e.key) {
+                case 'ArrowLeft':
+                    newX--;
+                    break;
+                case 'ArrowRight':
+                    newX++;
+                    break;
+                case 'ArrowDown':
+                    newY++;
+                    break;
+                case 'ArrowUp':
+                    newShape = rotate(currentPiece.shape);
+                    break;
+            }
+
+            if (!collide(newX, newY, newShape)) {
+                currentX = newX;
+                currentY = newY;
+                currentPiece.shape = newShape;
+            }
+            drawBoard();
+            drawPiece();
+        }
+
+        function restartTetris() {
+            if (tetrisGameInterval) clearInterval(tetrisGameInterval);
+            closeModal();
+            setTimeout(() => openTetrisGame(), 100);
+        }
+
+        // Cookie Clicker
+        let cookieCount = 0;
+        let clickPower = 1; // Cookies per click
+        let autoClickerRate = 0; // Cookies per second from auto-clickers
+        let cookieAutoClickerInterval = null;
+
+        const cookieUpgrades = [
+            { id: 'autoClicker', name: 'Auto-Clicker', baseCost: 10, costMultiplier: 1.5, effect: 'auto', value: 1, count: 0, currentCost: 10 },
+            { id: 'grandma', name: 'Grand-mère', baseCost: 100, costMultiplier: 1.7, effect: 'auto', value: 5, count: 0, currentCost: 100 },
+            { id: 'farm', name: 'Ferme à Cookies', baseCost: 1000, costMultiplier: 1.8, effect: 'auto', value: 50, count: 0, currentCost: 1000 },
+            { id: 'clickPower', name: 'Amélioration Clic', baseCost: 50, costMultiplier: 1.8, effect: 'click', value: 1, count: 0, currentCost: 50 }
+        ];
+
+        function openCookieClicker() {
+            const cookieHTML = `
+                <h2>Cookie Clicker</h2>
+                <div class="cookie-clicker">
+                    <div id="cookie" onclick="clickCookie()">🍪</div>
+                    <p>Cookies: <span id="cookieCount">0</span></p>
+                    <p>Cookies par clic: <span id="clickPowerDisplay">1</span></p>
+                    <p>Cookies par seconde (Auto): <span id="autoClickerRateDisplay">0</span></p>
+                    <div class="cookie-upgrades" id="cookieUpgradesContainer">
+                        <!-- Upgrades will be rendered here -->
+                    </div>
+                </div>
+            `;
+            openModal(cookieHTML);
+            // Reset game state
+            cookieCount = 0;
+            clickPower = 1;
+            autoClickerRate = 0;
+            if (cookieAutoClickerInterval) clearInterval(cookieAutoClickerInterval);
+            cookieAutoClickerInterval = null;
+
+            // Reset upgrade counts and calculate initial costs
+            cookieUpgrades.forEach(upgrade => {
+                upgrade.count = 0;
+                upgrade.currentCost = upgrade.baseCost;
+            });
+
+            updateCookieDisplay();
+            startAutoClickerInterval(); // Start interval even if rate is 0 initially
+        }
+
+        function updateCookieDisplay() {
+            document.getElementById('cookieCount').textContent = cookieCount;
+            document.getElementById('clickPowerDisplay').textContent = clickPower;
+            document.getElementById('autoClickerRateDisplay').textContent = autoClickerRate;
+
+            const upgradesContainer = document.getElementById('cookieUpgradesContainer');
+            if (upgradesContainer) {
+                upgradesContainer.innerHTML = ''; // Clear existing buttons
+                cookieUpgrades.forEach(upgrade => {
+                    const button = document.createElement('button');
+                    button.className = 'btn cookie-upgrade-btn';
+                    button.id = `upgrade-${upgrade.id}`;
+                    button.textContent = `${upgrade.name} (Coût: ${upgrade.currentCost}) (Possédé: ${upgrade.count})`;
+                    button.onclick = () => buyUpgrade(upgrade.id);
+                    if (cookieCount < upgrade.currentCost) {
+                        button.classList.add('disabled');
+                    } else {
+                        button.classList.remove('disabled');
+                    }
+                    upgradesContainer.appendChild(button);
+                });
+            }
+        }
+
+        function clickCookie() {
+            cookieCount += clickPower;
+            updateCookieDisplay();
+        }
+
+        function buyUpgrade(upgradeId) {
+            const upgrade = cookieUpgrades.find(u => u.id === upgradeId);
+            if (!upgrade) return;
+
+            if (cookieCount >= upgrade.currentCost) {
+                cookieCount -= upgrade.currentCost;
+                upgrade.count++;
+                upgrade.currentCost = Math.ceil(upgrade.baseCost * Math.pow(upgrade.costMultiplier, upgrade.count));
+
+                if (upgrade.effect === 'auto') {
+                    autoClickerRate += upgrade.value;
+                    startAutoClickerInterval(); // Restart interval with new rate
+                } else if (upgrade.effect === 'click') {
+                    clickPower += upgrade.value;
+                }
+                updateCookieDisplay();
+            } else {
+                showMessageBox(`Pas assez de cookies pour acheter ${upgrade.name} !`);
+            }
+        }
+
+        function startAutoClickerInterval() {
+            if (cookieAutoClickerInterval) {
+                clearInterval(cookieAutoClickerInterval);
+            }
+            if (autoClickerRate > 0) {
+                cookieAutoClickerInterval = setInterval(() => {
+                    cookieCount += autoClickerRate;
+                    updateCookieDisplay();
+                }, 1000);
+            }
+        }
+
+
+        // Typing Speed Test
+        let typingTestText = "La programmation est l'art de dire à un ordinateur quoi faire. C'est une compétence qui permet de créer des logiciels, des sites web, des applications mobiles, et bien plus encore. Apprendre à programmer ouvre les portes à un monde de possibilités créatives et logiques. Cela développe la pensée critique et la résolution de problèmes, des atouts précieux dans tous les domaines.";
+        let typingTestStartTime;
+        let typingTestTotalCharacters = 0;
+        let typingTestCorrectCharacters = 0;
+        let typingTestErrors = 0;
+        let typingTestCurrentIndex = 0;
+        let typingTestInterval = null;
+
+        function openTypingSpeedTest() {
+            const typingHTML = `
+                <h2>Test de Vitesse de Frappe</h2>
+                <div class="typing-test">
+                    <p style="font-size: 0.9em; opacity: 0.8; margin-bottom: 1rem;">Tapez le texte ci-dessous le plus rapidement possible :</p>
+                    <div class="typing-test-area">
+                        <div id="typingText"></div>
+                        <input type="text" id="typingInput" oninput="processTypingInput()" placeholder="Commencez à taper ici...">
+                    </div>
+                    <div id="typingResults" style="margin-top: 1.5rem;">
+                        <p>Temps: <span id="typingTime">0s</span></p>
+                        <p>Mots par minute (WPM): <span id="typingWPM">0</span></p>
+                        <p>Précision: <span id="typingAccuracy">100%</span></p>
+                        <button class="btn" onclick="startTypingTest()" style="margin-top: 1rem;">Recommencer</button>
+                    </div>
+                </div>
+            `;
+            openModal(typingHTML);
+            setTimeout(startTypingTest, 50);
+        }
+
+        function startTypingTest() {
+            typingTestCurrentIndex = 0;
+            typingTestCorrectCharacters = 0;
+            typingTestErrors = 0;
+            typingTestTotalCharacters = 0; // Reset total characters for new test
+
+            const textDisplay = document.getElementById('typingText');
+            const inputField = document.getElementById('typingInput');
+            const timeDisplay = document.getElementById('typingTime');
+            const wpmDisplay = document.getElementById('typingWPM');
+            const accuracyDisplay = document.getElementById('typingAccuracy');
+
+            if (!textDisplay || !inputField || !timeDisplay || !wpmDisplay || !accuracyDisplay) return;
+
+            inputField.value = '';
+            inputField.disabled = false;
+            inputField.focus();
+
+            textDisplay.innerHTML = typingTestText.split('').map((char, index) => `<span id="char-${index}">${char}</span>`).join('');
+            
+            timeDisplay.textContent = '0s';
+            wpmDisplay.textContent = '0';
+            accuracyDisplay.textContent = '100%';
+
+            if (typingTestInterval) clearInterval(typingTestInterval);
+            typingTestStartTime = null;
+        }
+
+        function processTypingInput() {
+            const inputField = document.getElementById('typingInput');
+            const typedText = inputField.value;
+
+            if (!typingTestStartTime) {
+                typingTestStartTime = Date.now();
+                typingTestInterval = setInterval(updateTypingStats, 1000);
+            }
+
+            const currentTextSpan = document.getElementById('typingText');
+            if (!currentTextSpan) return;
+
+            typingTestCurrentIndex = typedText.length;
+            typingTestTotalCharacters = typedText.length; // Characters typed so far
+
+            typingTestCorrectCharacters = 0;
+            typingTestErrors = 0;
+
+            for (let i = 0; i < typingTestText.length; i++) {
+                const charSpan = document.getElementById(`char-${i}`);
+                if (!charSpan) continue;
+
+                if (i < typedText.length) {
+                    if (typedText[i] === typingTestText[i]) {
+                        charSpan.className = 'correct-char';
+                        typingTestCorrectCharacters++;
+                    } else {
+                        charSpan.className = 'incorrect-char';
+                        typingTestErrors++;
+                    }
+                } else {
+                    charSpan.className = ''; // Reset styling for untyped characters
+                }
+            }
+
+            // Highlight current character to type
+            const currentCharSpan = document.getElementById(`char-${typingTestCurrentIndex}`);
+            if (currentCharSpan) {
+                currentCharSpan.classList.add('current-char');
+            }
+            if (typingTestCurrentIndex > 0) { // Remove highlight from previous char
+                const prevCharSpan = document.getElementById(`char-${typingTestCurrentIndex - 1}`);
+                if (prevCharSpan && prevCharSpan.classList.contains('current-char')) {
+                    prevCharSpan.classList.remove('current-char');
+                }
+            }
+
+
+            if (typedText.length === typingTestText.length) {
+                clearInterval(typingTestInterval);
+                typingTestInterval = null;
+                inputField.disabled = true;
+                updateTypingStats(); // Final update
+                showMessageBox('Test terminé !');
+            }
+        }
+
+        function updateTypingStats() {
+            const elapsedTime = (Date.now() - typingTestStartTime) / 1000; // in seconds
+            const wordsTyped = typingTestCorrectCharacters / 5; // A common estimate for words
+            const wpm = elapsedTime > 0 ? Math.round((wordsTyped / elapsedTime) * 60) : 0;
+            const accuracy = typingTestTotalCharacters > 0 ? Math.round((typingTestCorrectCharacters / typingTestTotalCharacters) * 100) : 100;
+
+            const timeDisplay = document.getElementById('typingTime');
+            const wpmDisplay = document.getElementById('typingWPM');
+            const accuracyDisplay = document.getElementById('typingAccuracy');
+
+            if (timeDisplay) timeDisplay.textContent = `${Math.round(elapsedTime)}s`;
+            if (wpmDisplay) wpmDisplay.textContent = wpm;
+            if (accuracyDisplay) accuracyDisplay.textContent = `${accuracy}%`;
+        }
+
+
+        // Mini-Quiz
+        const quizQuestions = [
+            { question: "Quelle est la capitale de la France ?", options: ["Berlin", "Madrid", "Paris", "Rome"], answer: "Paris" },
+            { question: "Quel est le plus grand océan du monde ?", options: ["Atlantique", "Indien", "Arctique", "Pacifique"], answer: "Pacifique" },
+            { question: "Qui a écrit 'Don Quichotte' ?", options: ["Cervantes", "Shakespeare", "Victor Hugo", "Dante Alighieri"], answer: "Cervantes" },
+            { question: "Quelle est la planète la plus proche du Soleil ?", options: ["Vénus", "Mars", "Mercure", "Terre"], answer: "Mercure" },
+            { question: "Quel est le symbole chimique de l'eau ?", options: ["O2", "CO2", "H2O", "NaCl"], answer: "H2O" }
+        ];
+        let currentQuizQuestionIndex = 0;
+        let quizScore = 0;
+
+        function openMiniQuiz() {
+            const quizHTML = `
+                <h2>Mini-Quiz</h2>
+                <div class="quiz-game">
+                    <p style="font-size: 0.9em; opacity: 0.8; margin-bottom: 1rem;">Testez vos connaissances !</p>
+                    <h3 id="quizQuestion">Question ici</h3>
+                    <div class="quiz-options" id="quizOptions">
+                        </div>
+                    <p id="quizResult" style="margin-top: 1rem;"></p>
+                    <button class="btn" onclick="nextQuizQuestion()" id="nextQuizBtn" style="display: none; margin-top: 1rem;">Question Suivante</button>
+                    <button class="btn" onclick="startQuiz()" id="startQuizBtn" style="margin-top: 1rem;">Commencer le Quiz</button>
+                </div>
+            `;
+            openModal(quizHTML);
+            setTimeout(startQuiz, 50);
+        }
+
+        function startQuiz() {
+            currentQuizQuestionIndex = 0;
+            quizScore = 0;
+            document.getElementById('startQuizBtn').style.display = 'none';
+            document.getElementById('nextQuizBtn').style.display = 'none';
+            document.getElementById('quizResult').textContent = '';
+            loadQuizQuestion();
+        }
+
+        function loadQuizQuestion() {
+            if (currentQuizQuestionIndex >= quizQuestions.length) {
+                endQuiz();
+                return;
+            }
+
+            const questionData = quizQuestions[currentQuizQuestionIndex];
+            document.getElementById('quizQuestion').textContent = questionData.question;
+            const optionsContainer = document.getElementById('quizOptions');
+            optionsContainer.innerHTML = '';
+            document.getElementById('quizResult').textContent = '';
+            document.getElementById('nextQuizBtn').style.display = 'none';
+
+            questionData.options.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.onclick = () => checkQuizAnswer(option, questionData.answer);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function checkQuizAnswer(selectedOption, correctAnswer) {
+            const optionsContainer = document.getElementById('quizOptions');
+            const buttons = optionsContainer.querySelectorAll('button');
+            buttons.forEach(button => {
+                button.disabled = true; // Disable all buttons after selection
+                if (button.textContent === correctAnswer) {
+                    button.classList.add('correct');
+                } else if (button.textContent === selectedOption) {
+                    button.classList.add('incorrect');
+                }
+            });
+
+            const resultDisplay = document.getElementById('quizResult');
+            if (selectedOption === correctAnswer) {
+                resultDisplay.textContent = 'Correct !';
+                resultDisplay.style.color = '#5cb85c';
+                quizScore++;
+            } else {
+                resultDisplay.textContent = 'Incorrect. La bonne réponse était : ' + correctAnswer;
+                resultDisplay.style.color = '#ff4d4d';
+            }
+            document.getElementById('nextQuizBtn').style.display = 'block';
+        }
+
+        function nextQuizQuestion() {
+            currentQuizQuestionIndex++;
+            loadQuizQuestion();
+        }
+
+        function endQuiz() {
+            const quizGameDiv = document.querySelector('.quiz-game');
+            if (quizGameDiv) {
+                quizGameDiv.innerHTML = `
+                    <h3>Quiz Terminé !</h3>
+                    <p style="font-size: 1.5rem; margin-top: 1rem;">Votre score final est de : ${quizScore} / ${quizQuestions.length}</p>
+                    <button class="btn" onclick="startQuiz()">Recommencer le Quiz</button>
+                `;
+            }
+        }
+
+
+        // CPS Test
+        let cpsClicks = 0;
+        let cpsTestActive = false;
+        let cpsTestTimeout = null;
+
+        function openCPSTest() {
+            const cpsHTML = `
+                <h2>CPS Test</h2>
+                <div class="cps-test">
+                    <p style="font-size: 0.9em; opacity: 0.8; margin-bottom: 1rem;">Cliquez le plus rapidement possible pendant 5 secondes !</p>
+                    <div id="cpsClickArea" onclick="startCPSTest()">Cliquez ici pour commencer !</div>
+                    <p>Temps restant: <span id="cpsTimer">5</span>s</p>
+                    <p>Clics: <span id="cpsClicks">0</span></p>
+                    <div id="cpsResult"></div>
+                    <button class="btn" onclick="resetCPSTest()" style="margin-top: 1rem;">Recommencer</button>
+                </div>
+            `;
+            openModal(cpsHTML);
+            resetCPSTest();
+        }
+
+        function startCPSTest() {
+            if (!cpsTestActive) {
+                cpsClicks = 0;
+                document.getElementById('cpsClicks').textContent = '0';
+                document.getElementById('cpsResult').textContent = '';
+                document.getElementById('cpsClickArea').classList.add('active');
+                document.getElementById('cpsClickArea').textContent = 'Cliquez !';
+                
+                cpsTestActive = true;
+                let timer = 5;
+                document.getElementById('cpsTimer').textContent = timer;
+
+                const countdownInterval = setInterval(() => {
+                    timer--;
+                    document.getElementById('cpsTimer').textContent = timer;
+                    if (timer <= 0) {
+                        clearInterval(countdownInterval);
+                        endCPSTest();
+                    }
+                }, 1000);
+            } else {
+                cpsClicks++;
+                document.getElementById('cpsClicks').textContent = cpsClicks;
+            }
+        }
+
+        function endCPSTest() {
+            cpsTestActive = false;
+            document.getElementById('cpsClickArea').classList.remove('active', 'disabled');
+            document.getElementById('cpsClickArea').classList.add('disabled');
+            document.getElementById('cpsClickArea').textContent = 'Terminé !';
+            const cps = (cpsClicks / 5).toFixed(2);
+            document.getElementById('cpsResult').textContent = `Votre CPS : ${cps}`;
+        }
+
+        function resetCPSTest() {
+            if (cpsTestTimeout) clearTimeout(cpsTestTimeout);
+            cpsClicks = 0;
+            cpsTestActive = false;
+            document.getElementById('cpsClicks').textContent = '0';
+            document.getElementById('cpsTimer').textContent = '5';
+            document.getElementById('cpsResult').textContent = '';
+            document.getElementById('cpsClickArea').classList.remove('active', 'disabled');
+            document.getElementById('cpsClickArea').textContent = 'Cliquez ici pour commencer !';
+        }
+
+        // To-Do List
+        let todos = [];
+
+        function openTodoList() {
+            const todoHTML = `
+                <h2>To-Do List</h2>
+                <div class="todo-list-container">
+                    <input type="text" id="todoInput" placeholder="Ajouter une nouvelle tâche...">
+                    <button class="btn add-todo-btn" onclick="addTodo()">Ajouter</button>
+                    <ul id="todoList"></ul>
+                </div>
+            `;
+            openModal(todoHTML);
+            setTimeout(() => {
+                loadTodos();
+                renderTodos();
+            }, 50);
+        }
+
+        function loadTodos() {
+            const storedTodos = localStorage.getItem('todos');
+            if (storedTodos) {
+                todos = JSON.parse(storedTodos);
+            } else {
+                todos = [];
+            }
+        }
+
+        function saveTodos() {
+            localStorage.setItem('todos', JSON.stringify(todos));
+        }
+
+        function renderTodos() {
+            const todoList = document.getElementById('todoList');
+            if (!todoList) return;
+
+            todoList.innerHTML = '';
+            todos.forEach((todo, index) => {
+                const li = document.createElement('li');
+                li.className = todo.completed ? 'completed' : '';
+                li.innerHTML = `
+                    <span onclick="toggleTodo(${index})" style="cursor: pointer; flex-grow: 1;">${todo.text}</span>
+                    <button onclick="deleteTodo(${index})">Supprimer</button>
+                `;
+                todoList.appendChild(li);
+            });
+        }
+
+        function addTodo() {
+            const todoInput = document.getElementById('todoInput');
+            if (!todoInput || todoInput.value.trim() === '') return;
+
+            todos.push({ text: todoInput.value.trim(), completed: false });
+            todoInput.value = '';
+            saveTodos();
+            renderTodos();
+        }
+
+        function toggleTodo(index) {
+            if (todos[index]) {
+                todos[index].completed = !todos[index].completed;
+                saveTodos();
+                renderTodos();
+            }
+        }
+
+        function deleteTodo(index) {
+            todos.splice(index, 1);
+            saveTodos();
+            renderTodos();
+        }
+
+        // Game Boy Emulator
+        function openGameBoyEmulator() {
+            const emulatorHTML = `
+                <h2>Game Boy Emulator</h2>
+                <div style="text-align: center; padding: 1rem;">
+                    <p style="margin-bottom: 1rem;">Chargement de l'émulateur Game Boy...</p>
+                    <iframe src="https://www.retrogames.cc/embed/17300-pokemon-red.html" width="100%" height="500px" frameborder="0" allowfullscreen style="border-radius: 10px;"></iframe>
+                    <p style="margin-top: 1rem; font-size: 0.8em; opacity: 0.7;">(Note: Cet émulateur est fourni par un service tiers et peut nécessiter un chargement. Les sauvegardes peuvent ne pas être persistantes.)</p>
+                </div>
+            `;
+            openModal(emulatorHTML);
+        }
+
+        // Flappy Bird Game
+        let flappyBirdCanvas, flappyBirdCtx;
+        let bird;
+        let pipes;
+        let flappyScore;
+        let flappyGameOver;
+        let flappyGameLoop;
+        const FLAPPY_GRAVITY = 0.2; // Reduced gravity
+        const FLAPPY_JUMP = -5; // Adjusted jump to compensate
+        const FLAPPY_PIPE_SPEED = 3;
+        const FLAPPY_PIPE_WIDTH = 50;
+        const FLAPPY_PIPE_GAP = 150;
+
+        function openFlappyBirdGame() {
+            const flappyHTML = `
+                <h2>Flappy Bird Clone</h2>
+                <div style="text-align: center;">
+                    <canvas id="flappyBirdCanvas" width="320" height="480"></canvas>
+                    <div style="margin: 1rem 0;">
+                        <span>Score: <span id="flappyScore">0</span></span>
+                        <button class="btn" onclick="restartFlappyBird()" style="margin-left: 2rem;">Recommencer</button>
+                    </div>
+                    <p>Cliquez ou appuyez sur Espace pour sauter</p>
+                </div>
+            `;
+            openModal(flappyHTML);
+            setTimeout(initFlappyBirdGame, 100);
+            document.removeEventListener('keydown', handleFlappyBirdKeydown);
+            document.addEventListener('keydown', handleFlappyBirdKeydown);
+            document.body.style.overflow = 'hidden'; // Prevent page scrolling
+        }
+
+        function initFlappyBirdGame() {
+            flappyBirdCanvas = document.getElementById('flappyBirdCanvas');
+            if (!flappyBirdCanvas) return;
+            flappyBirdCtx = flappyBirdCanvas.getContext('2d');
+
+            bird = {
+                x: 50,
+                y: flappyBirdCanvas.height / 2,
+                radius: 12,
+                velocity: 0
+            };
+            pipes = [];
+            flappyScore = 0;
+            flappyGameOver = false;
+            document.getElementById('flappyScore').textContent = flappyScore;
+
+            // Generate initial pipes
+            for (let i = 0; i < 2; i++) {
+                generatePipe(flappyBirdCanvas.width + i * (flappyBirdCanvas.width / 2 + FLAPPY_PIPE_WIDTH / 2));
+            }
+
+            if (flappyGameLoop) cancelAnimationFrame(flappyGameLoop);
+            flappyGameLoop = requestAnimationFrame(gameLoopFlappyBird);
+        }
+
+        function handleFlappyBirdKeydown(e) {
+            if (e.key === ' ' || e.key === 'ArrowUp') {
+                e.preventDefault(); // Prevent scrolling
+                bird.velocity = FLAPPY_JUMP;
+            }
+        }
+
+        function generatePipe(xPos) {
+            const pipeHeight = Math.floor(Math.random() * (flappyBirdCanvas.height - FLAPPY_PIPE_GAP * 2)) + FLAPPY_PIPE_GAP / 2;
+            pipes.push({
+                x: xPos,
+                y: 0, // Top pipe starts at 0
+                width: FLAPPY_PIPE_WIDTH,
+                height: pipeHeight,
+                passed: false // To track scoring
+            });
+            pipes.push({
+                x: xPos,
+                y: pipeHeight + FLAPPY_PIPE_GAP, // Bottom pipe starts after gap
+                width: FLAPPY_PIPE_WIDTH,
+                height: flappyBirdCanvas.height - pipeHeight - FLAPPY_PIPE_GAP,
+                passed: false
+            });
+        }
+
+        function drawFlappyBird() {
+            flappyBirdCtx.fillStyle = 'yellow';
+            flappyBirdCtx.beginPath();
+            flappyBirdCtx.arc(bird.x, bird.y, bird.radius, 0, Math.PI * 2);
+            flappyBirdCtx.fill();
+            flappyBirdCtx.strokeStyle = 'orange';
+            flappyBirdCtx.lineWidth = 2;
+            flappyBirdCtx.stroke();
+            // Simple beak
+            flappyBirdCtx.fillStyle = 'orange';
+            flappyBirdCtx.beginPath();
+            flappyBirdCtx.moveTo(bird.x + bird.radius, bird.y - 5);
+            flappyBirdCtx.lineTo(bird.x + bird.radius + 8, bird.y);
+            flappyBirdCtx.lineTo(bird.x + bird.radius, bird.y + 5);
+            flappyBirdCtx.fill();
+            // Simple eye
+            flappyBirdCtx.fillStyle = 'black';
+            flappyBirdCtx.beginPath();
+            flappyBirdCtx.arc(bird.x + 5, bird.y - 5, 2, 0, Math.PI * 2);
+            flappyBirdCtx.fill();
+        }
+
+        function drawPipes() {
+            flappyBirdCtx.fillStyle = 'green';
+            flappyBirdCtx.strokeStyle = 'darkgreen';
+            flappyBirdCtx.lineWidth = 2;
+            pipes.forEach(pipe => {
+                flappyBirdCtx.fillRect(pipe.x, pipe.y, pipe.width, pipe.height);
+                flappyBirdCtx.strokeRect(pipe.x, pipe.y, pipe.width, pipe.height);
+            });
+        }
+
+        function updateFlappyBird() {
+            if (flappyGameOver) return;
+
+            // Bird physics
+            bird.velocity += FLAPPY_GRAVITY;
+            bird.y += bird.velocity;
+
+            // Move pipes and generate new ones
+            // Iterate backwards to safely remove elements
+            for (let i = pipes.length - 1; i >= 0; i--) {
+                const pipe = pipes[i]; // Get the current pipe
+
+                // Move the pipe
+                pipe.x -= FLAPPY_PIPE_SPEED;
+
+                // Scoring logic: Only score when the *top* pipe of a pair passes the bird.
+                // Top pipes are at even indices (0, 2, 4, ...) because generatePipe pushes top then bottom.
+                if (i % 2 === 0 && pipe.x + pipe.width < bird.x - bird.radius && !pipe.passed) {
+                    flappyScore++;
+                    document.getElementById('flappyScore').textContent = flappyScore;
+                    pipe.passed = true; // Mark top pipe as passed
+                    // Also mark the corresponding bottom pipe as passed to prevent double scoring
+                    if (pipes[i + 1]) { // Check if the bottom pipe exists
+                        pipes[i + 1].passed = true;
+                    }
+                }
+
+                // Remove off-screen pipes:
+                // If the top pipe of a pair (even index) has moved completely off-screen, remove both pipes of the pair.
+                if (i % 2 === 0 && pipe.x + pipe.width < 0) { // This is a top pipe and it's off-screen
+                    pipes.splice(i, 2); // Remove this top pipe and its corresponding bottom pipe
+                    generatePipe(flappyBirdCanvas.width); // Generate a new pair
+                }
+            }
+
+            // Collision detection (bird with ground/ceiling)
+            if (bird.y + bird.radius > flappyBirdCanvas.height || bird.y - bird.radius < 0) {
+                endFlappyBirdGame();
+            }
+
+            // Collision detection (bird with pipes)
+            pipes.forEach(pipe => { // Use forEach here, as we are not modifying the array during this loop
+                if (
+                    bird.x + bird.radius > pipe.x &&
+                    bird.x - bird.radius < pipe.x + pipe.width &&
+                    bird.y + bird.radius > pipe.y &&
+                    bird.y - bird.radius < pipe.y + pipe.height
+                ) {
+                    endFlappyBirdGame();
+                }
+            });
+        }
+
+        function gameLoopFlappyBird() {
+            flappyBirdCtx.clearRect(0, 0, flappyBirdCanvas.width, flappyBirdCanvas.height);
+            flappyBirdCtx.fillStyle = 'skyblue'; // Background
+            flappyBirdCtx.fillRect(0, 0, flappyBirdCanvas.width, flappyBirdCanvas.height);
+
+            updateFlappyBird();
+            drawPipes();
+            drawFlappyBird();
+
+            if (!flappyGameOver) {
+                flappyGameLoop = requestAnimationFrame(gameLoopFlappyBird);
+            }
+        }
+
+        function endFlappyBirdGame() {
+            flappyGameOver = true;
+            cancelAnimationFrame(flappyGameLoop);
+            showMessageBox(`Game Over! Score: ${flappyScore}`);
+        }
+
+        function restartFlappyBird() {
+            closeModal();
+            setTimeout(() => openFlappyBirdGame(), 100);
+        }
+
+        // Pac-Man Game (Simplified)
+        let pacManCanvas, pacManCtx;
+        let pacMan;
+        let ghosts;
+        let pellets;
+        let pacManScore;
+        let pacManGameOver;
+        let pacManGameLoop;
+
+        const PACMAN_TILE_SIZE = 20;
+        const PACMAN_MAP = [
+            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+            [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+            [1,0,1,1,1,0,1,1,1,1,1,1,1,1,0,1,1,1,0,1],
+            [1,0,1,1,1,0,1,1,1,1,1,1,1,1,0,1,1,1,0,1],
+            [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+            [1,0,1,1,1,0,1,0,1,1,1,1,0,1,0,1,1,1,0,1],
+            [1,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,1],
+            [1,1,1,1,1,0,1,1,1,1,1,1,1,1,0,1,1,1,1,1],
+            [1,1,1,1,1,0,1,0,0,0,0,0,0,1,0,1,1,1,1,1],
+            [1,1,1,1,1,0,1,0,1,1,1,1,0,1,0,1,1,1,1,1],
+            [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+            [1,0,1,1,1,0,1,1,1,1,1,1,1,1,0,1,1,1,0,1],
+            [1,0,1,1,1,0,1,1,1,1,1,1,1,1,0,1,1,1,0,1],
+            [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+        ];
+
+        function openPacManGame() {
+            const pacmanHTML = `
+                <h2>Pac-Man</h2>
+                <div style="text-align: center;">
+                    <canvas id="pacManCanvas" width="${PACMAN_MAP[0].length * PACMAN_TILE_SIZE}" height="${PACMAN_MAP.length * PACMAN_TILE_SIZE}"></canvas>
+                    <div style="margin: 1rem 0;">
+                        <span>Score: <span id="pacManScore">0</span></span>
+                        <button class="btn" onclick="restartPacMan()" style="margin-left: 2rem;">Recommencer</button>
+                    </div>
+                    <p>Utilisez les flèches du clavier pour déplacer Pac-Man</p>
+                </div>
+            `;
+            openModal(pacmanHTML);
+            setTimeout(initPacManGame, 100);
+            document.removeEventListener('keydown', handlePacManKeydown);
+            document.addEventListener('keydown', handlePacManKeydown);
+            document.body.style.overflow = 'hidden'; // Prevent page scrolling
+        }
+
+        function initPacManGame() {
+            pacManCanvas = document.getElementById('pacManCanvas');
+            if (!pacManCanvas) return;
+            pacManCtx = pacManCanvas.getContext('2d');
+
+            pacMan = {
+                x: 1 * PACMAN_TILE_SIZE + PACMAN_TILE_SIZE / 2, // Start at (1,1)
+                y: 1 * PACMAN_TILE_SIZE + PACMAN_TILE_SIZE / 2,
+                radius: PACMAN_TILE_SIZE / 2 - 2,
+                dx: 0,
+                dy: 0,
+                speed: 2,
+                mouthOpen: 0.75, // For animation
+                mouthDirection: 1 // 1 for opening, -1 for closing
+            };
+
+            ghosts = [
+                { x: 9 * PACMAN_TILE_SIZE + PACMAN_TILE_SIZE / 2, y: 7 * PACMAN_TILE_SIZE + PACMAN_TILE_SIZE / 2, color: 'red', dx: -pacMan.speed, dy: 0 },
+                { x: 10 * PACMAN_TILE_SIZE + PACMAN_TILE_SIZE / 2, y: 7 * PACMAN_TILE_SIZE + PACMAN_TILE_SIZE / 2, color: 'pink', dx: pacMan.speed, dy: 0 }
+            ];
+
+            pellets = [];
+            for (let r = 0; r < PACMAN_MAP.length; r++) {
+                for (let c = 0; c < PACMAN_MAP[0].length; c++) {
+                    if (PACMAN_MAP[r][c] === 0) { // Empty space for pellet
+                        pellets.push({
+                            x: c * PACMAN_TILE_SIZE + PACMAN_TILE_SIZE / 2,
+                            y: r * PACMAN_TILE_SIZE + PACMAN_TILE_SIZE / 2,
+                            radius: 3
+                        });
+                    }
+                }
+            }
+            
+            pacManScore = 0;
+            pacManGameOver = false;
+            document.getElementById('pacManScore').textContent = pacManScore;
+
+            if (pacManGameLoop) cancelAnimationFrame(pacManGameLoop);
+            pacManGameLoop = requestAnimationFrame(gameLoopPacMan);
+        }
+
+        function handlePacManKeydown(e) {
+            if (pacManGameOver) return;
+            e.preventDefault();
+            switch (e.key) {
+                case 'ArrowUp': pacMan.dx = 0; pacMan.dy = -pacMan.speed; break;
+                case 'ArrowDown': pacMan.dx = 0; pacMan.dy = pacMan.speed; break;
+                case 'ArrowLeft': pacMan.dx = -pacMan.speed; pacMan.dy = 0; break;
+                case 'ArrowRight': pacMan.dx = pacMan.speed; pacMan.dy = 0; break;
+            }
+        }
+
+        function checkWallCollision(x, y, dx, dy, radius) {
+            const nextTileX = Math.floor((x + dx + (dx > 0 ? radius : -radius)) / PACMAN_TILE_SIZE);
+            const nextTileY = Math.floor((y + dy + (dy > 0 ? radius : -radius)) / PACMAN_TILE_SIZE);
+            
+            const currentTileX = Math.floor(x / PACMAN_TILE_SIZE);
+            const currentTileY = Math.floor(y / PACMAN_TILE_SIZE);
+
+            // Check if the next position would hit a wall
+            if (PACMAN_MAP[nextTileY] && PACMAN_MAP[nextTileY][nextTileX] === 1) {
+                return true;
+            }
+            return false;
+        }
+
+        function updatePacMan() {
+            if (pacManGameOver) return;
+
+            // Animate mouth
+            pacMan.mouthOpen += pacMan.mouthDirection * 0.05;
+            if (pacMan.mouthOpen > 0.75 || pacMan.mouthOpen < 0) {
+                pacMan.mouthDirection *= -1;
+            }
+
+            // Check for wall collisions before moving
+            if (!checkWallCollision(pacMan.x, pacMan.y, pacMan.dx, pacMan.dy, pacMan.radius)) {
+                pacMan.x += pacMan.dx;
+                pacMan.y += pacMan.dy;
+            } else {
+                pacMan.dx = 0;
+                pacMan.dy = 0; // Stop if hitting a wall
+            }
+
+            // Eat pellets
+            for (let i = pellets.length - 1; i >= 0; i--) {
+                const pellet = pellets[i];
+                const dist = Math.sqrt(Math.pow(pacMan.x - pellet.x, 2) + Math.pow(pacMan.y - pellet.y, 2));
+                if (dist < pacMan.radius + pellet.radius) {
+                    pellets.splice(i, 1);
+                    pacManScore += 10;
+                    document.getElementById('pacManScore').textContent = pacManScore;
+                }
+            }
+
+            // Check if all pellets are eaten
+            if (pellets.length === 0) {
+                pacManGameOver = true;
+                showMessageBox(`Félicitations ! Vous avez mangé toutes les pac-gommes ! Score final: ${pacManScore}`);
+            }
+
+            // Ghost movement (more intelligent)
+            ghosts.forEach(ghost => {
+                const currentGhostTileX = Math.floor(ghost.x / PACMAN_TILE_SIZE);
+                const currentGhostTileY = Math.floor(ghost.y / PACMAN_TILE_SIZE);
+                const pacManTileX = Math.floor(pacMan.x / PACMAN_TILE_SIZE);
+                const pacManTileY = Math.floor(pacMan.y / PACMAN_TILE_SIZE);
+
+                const atTileCenter = Math.abs((ghost.x % PACMAN_TILE_SIZE) - PACMAN_TILE_SIZE / 2) < ghost.speed &&
+                                     Math.abs((ghost.y % PACMAN_TILE_SIZE) - PACMAN_TILE_SIZE / 2) < ghost.speed;
+
+                if (atTileCenter) {
+                    let bestDx = 0, bestDy = 0;
+                    let minDistance = Infinity;
+
+                    const directions = [
+                        { dx: ghost.speed, dy: 0 },
+                        { dx: -ghost.speed, dy: 0 },
+                        { dx: 0, dy: ghost.speed },
+                        { dx: 0, dy: -ghost.speed }
+                    ];
+
+                    // Prioritize directions that reduce distance to Pac-Man
+                    const shuffledDirections = directions.sort(() => Math.random() - 0.5); // Add some randomness
+
+                    for (const dir of shuffledDirections) {
+                        if (!checkWallCollision(ghost.x, ghost.y, dir.dx, dir.dy, PACMAN_TILE_SIZE / 2 - 1)) {
+                            const nextX = ghost.x + dir.dx;
+                            const nextY = ghost.y + dir.dy;
+                            const dist = Math.sqrt(Math.pow(nextX - pacMan.x, 2) + Math.pow(nextY - pacMan.y, 2));
+
+                            if (dist < minDistance) {
+                                minDistance = dist;
+                                bestDx = dir.dx;
+                                bestDy = dir.dy;
+                            }
+                        }
+                    }
+
+                    // If a valid move towards Pac-Man is found, take it. Otherwise, try any valid move.
+                    if (bestDx !== 0 || bestDy !== 0) {
+                        ghost.dx = bestDx;
+                        ghost.dy = bestDy;
+                    } else {
+                        // Fallback: if no path reduces distance, just pick any valid non-reversing path
+                        const validMoves = directions.filter(dir =>
+                            !checkWallCollision(ghost.x, ghost.y, dir.dx, dir.dy, PACMAN_TILE_SIZE / 2 - 1) &&
+                            !(dir.dx === -ghost.dx && dir.dy === -ghost.dy) // Avoid immediate reversal
+                        );
+                        if (validMoves.length > 0) {
+                            const newDir = validMoves[Math.floor(Math.random() * validMoves.length)];
+                            ghost.dx = newDir.dx;
+                            ghost.dy = newDir.dy;
+                        } else {
+                            // If stuck, reverse
+                            ghost.dx = -ghost.dx;
+                            ghost.dy = -ghost.dy;
+                        }
+                    }
+                }
+
+                // Move ghost
+                if (!checkWallCollision(ghost.x, ghost.y, ghost.dx, ghost.dy, PACMAN_TILE_SIZE / 2 - 1)) {
+                    ghost.x += ghost.dx;
+                    ghost.y += ghost.dy;
+                } else {
+                    // If hitting a wall, stop and force a new direction next frame
+                    ghost.dx = 0;
+                    ghost.dy = 0;
+                }
+
+                // Ghost collision with Pac-Man
+                const dist = Math.sqrt(Math.pow(pacMan.x - ghost.x, 2) + Math.pow(pacMan.y - ghost.y, 2));
+                if (dist < pacMan.radius + PACMAN_TILE_SIZE / 2 - 2) {
+                    pacManGameOver = true;
+                    showMessageBox(`Game Over! Vous avez été attrapé par un fantôme. Score final: ${pacManScore}`);
+                }
+            });
+        }
+
+        function drawPacMan() {
+            pacManCtx.fillStyle = 'yellow';
+            pacManCtx.beginPath();
+            const startAngle = pacMan.mouthOpen * Math.PI;
+            const endAngle = (2 - pacMan.mouthOpen) * Math.PI;
+            pacManCtx.arc(pacMan.x, pacMan.y, pacMan.radius, startAngle, endAngle);
+            pacManCtx.lineTo(pacMan.x, pacMan.y);
+            pacManCtx.fill();
+        }
+
+        function drawGhosts() {
+            ghosts.forEach(ghost => {
+                pacManCtx.fillStyle = ghost.color;
+                pacManCtx.beginPath();
+                // Body
+                pacManCtx.arc(ghost.x, ghost.y, PACMAN_TILE_SIZE / 2 - 2, Math.PI, 0, false);
+                pacManCtx.lineTo(ghost.x + PACMAN_TILE_SIZE / 2 - 2, ghost.y + PACMAN_TILE_SIZE / 2 - 2);
+                pacManCtx.lineTo(ghost.x - PACMAN_TILE_SIZE / 2 + 2, ghost.y + PACMAN_TILE_SIZE / 2 - 2);
+                pacManCtx.fill();
+                // Eyes
+                pacManCtx.fillStyle = 'white';
+                pacManCtx.beginPath();
+                pacManCtx.arc(ghost.x - 5, ghost.y - 5, 3, 0, Math.PI * 2);
+                pacManCtx.arc(ghost.x + 5, ghost.y - 5, 3, 0, Math.PI * 2);
+                pacManCtx.fill();
+                pacManCtx.fillStyle = 'blue';
+                pacManCtx.beginPath();
+                pacManCtx.arc(ghost.x - 5, ghost.y - 5, 1.5, 0, Math.PI * 2);
+                pacManCtx.arc(ghost.x + 5, ghost.y - 5, 1.5, 0, Math.PI * 2);
+                pacManCtx.fill();
+            });
+        }
+
+        function drawPellets() {
+            pacManCtx.fillStyle = 'white';
+            pellets.forEach(pellet => {
+                pacManCtx.beginPath();
+                pacManCtx.arc(pellet.x, pellet.y, pellet.radius, 0, Math.PI * 2);
+                pacManCtx.fill();
+            });
+        }
+
+        function drawMaze() {
+            pacManCtx.fillStyle = 'blue';
+            for (let r = 0; r < PACMAN_MAP.length; r++) {
+                for (let c = 0; c < PACMAN_MAP[0].length; c++) {
+                    if (PACMAN_MAP[r][c] === 1) {
+                        pacManCtx.fillRect(c * PACMAN_TILE_SIZE, r * PACMAN_TILE_SIZE, PACMAN_TILE_SIZE, PACMAN_TILE_SIZE);
+                    }
+                }
+            }
+        }
+
+        function gameLoopPacMan() {
+            if (pacManGameOver) {
+                cancelAnimationFrame(pacManGameLoop);
+                return;
+            }
+
+            pacManCtx.clearRect(0, 0, pacManCanvas.width, pacManCanvas.height);
+            drawMaze();
+            drawPellets();
+            drawPacMan();
+            drawGhosts();
+            updatePacMan();
+
+            pacManGameLoop = requestAnimationFrame(gameLoopPacMan);
+        }
+
+        function restartPacMan() {
+            closeModal();
+            setTimeout(() => openPacManGame(), 100);
+        }
+
+        // Role-Playing Game (RPG)
+        let rpgPlayer = {};
+        let rpgCurrentScene = '';
+        let rpgGameData = {}; // Stores all scenes, enemies, items, etc.
+
+        function openRPGGame() {
+            const rpgHTML = `
+                <h2>Jeu de Rôle (RPG)</h2>
+                <div class="rpg-game-container">
+                    <div id="rpgOutput"></div>
+                    <div id="rpgOptions" class="rpg-options"></div>
+                    <div id="rpgStats" class="rpg-stats"></div>
+                    <button class="btn" onclick="startRPG()" id="startRPGButton">Commencer l'Aventure</button>
+                </div>
+            `;
+            openModal(rpgHTML);
+            setTimeout(initRPGGame, 100);
+            document.removeEventListener('keydown', handleRPGKeydown);
+            document.addEventListener('keydown', handleRPGKeydown);
+        }
+
+        function initRPGGame() {
+            rpgPlayer = {
+                name: 'Héros Inconnu',
+                hp: 100,
+                maxHp: 100,
+                attack: 10,
+                defense: 5,
+                magic: 0,
+                inventory: [],
+                gold: 0
+            };
+
+            rpgGameData = {
+                scenes: {
+                    intro: {
+                        text: "Bienvenue, aventurier ! Un sombre voile s'est abattu sur le royaume d'Eldoria. Des créatures des ombres ont commencé à apparaître, semant la terreur. Seul un héros courageux peut découvrir la source de cette corruption et la vaincre. Êtes-vous prêt à relever le défi ?",
+                        options: [
+                            { text: "Oui, je suis né pour ça !", nextScene: "forest_edge" },
+                            { text: "Non, je préfère rester au lit.", nextScene: "game_over_coward" }
+                        ]
+                    },
+                    game_over_coward: {
+                        text: "Vous décidez de rester au chaud sous votre couette. Le royaume sombre, mais au moins, vous avez bien dormi. Fin de l'aventure.",
+                        options: [{ text: "Recommencer", nextScene: "intro" }]
+                    },
+                    forest_edge: {
+                        text: "Vous vous tenez à l'orée de la Forêt Obscure, d'où proviennent les rumeurs. Le chemin se divise. Où allez-vous ?",
+                        options: [
+                            { text: "Prendre le sentier de gauche (vers le Village Oublié)", nextScene: "forgotten_village" },
+                            { text: "Prendre le sentier de droite (vers la Grotte des Murmures)", nextScene: "whispering_cave_entrance" }
+                        ]
+                    },
+                    forgotten_village: {
+                        text: "Le Village Oublié est en ruines. Des ombres grouillent. Soudain, un Gobelin des Ombres vous attaque !",
+                        onEnter: () => startCombat('goblin'),
+                        options: [] // Options will be generated by combat
+                    },
+                    whispering_cave_entrance: {
+                        text: "L'entrée de la Grotte des Murmures est sombre et humide. Vous entendez des bruits étranges à l'intérieur.",
+                        options: [
+                            { text: "Entrer dans la grotte", nextScene: "whispering_cave_inside" },
+                            { text: "Faire demi-tour (retour à l'orée de la forêt)", nextScene: "forest_edge" }
+                        ]
+                    },
+                    whispering_cave_inside: {
+                        text: "À l'intérieur de la grotte, un Loup des Ombres vous barre le passage !",
+                        onEnter: () => startCombat('shadow_wolf'),
+                        options: []
+                    },
+                    combat_win: {
+                        text: "Vous avez vaincu l'ennemi ! Vous gagnez de l'expérience et de l'or.",
+                        onEnter: () => {
+                            if (rpgGameData.lastDefeatedEnemy) {
+                                rpgPlayer.gold += rpgGameData.lastDefeatedEnemy.gold;
+                                rpgPlayer.hp = Math.min(rpgPlayer.maxHp, rpgPlayer.hp + 10); // Heal a bit after combat
+
+                                // Determine the next scene based on the last defeated enemy
+                                let nextSceneForWin;
+                                if (rpgGameData.lastDefeatedEnemy.name === rpgGameData.enemies.goblin.name) {
+                                    nextSceneForWin = 'village_loot';
+                                } else if (rpgGameData.lastDefeatedEnemy.name === rpgGameData.enemies.shadow_wolf.name) {
+                                    nextSceneForWin = 'cave_loot';
+                                } else if (rpgGameData.lastDefeatedEnemy.name === rpgGameData.enemies.shadow_demon.name) {
+                                    nextSceneForWin = 'game_win'; // Boss fight win
+                                } else {
+                                    nextSceneForWin = 'deep_forest_path'; // Fallback
+                                }
+                                
+                                // Update the nextScene for the 'Continue exploration' option
+                                rpgGameData.scenes.combat_win.options[0].nextScene = nextSceneForWin;
+
+                                // Clear lastDefeatedEnemy after use
+                                rpgGameData.lastDefeatedEnemy = null;
+                            }
+                            updateRPGStats();
+                        },
+                        options: [
+                            { text: "Continuer l'exploration", nextScene: "" } // Placeholder, will be set in onEnter
+                        ]
+                    },
+                    combat_lose: {
+                        text: "Vous avez été vaincu... Le royaume est perdu. Fin de l'aventure.",
+                        options: [{ text: "Recommencer", nextScene: "intro" }]
+                    },
+                    village_loot: {
+                        text: "Vous fouillez les ruines du village et trouvez une Vieille Épée Rouillée. Elle semble un peu meilleure que vos poings.",
+                        onEnter: () => {
+                            if (!rpgPlayer.inventory.includes('Vieille Épée Rouillée')) {
+                                rpgPlayer.inventory.push('Vieille Épée Rouillée');
+                                rpgPlayer.attack += 5; // Boost attack
+                                updateRPGStats();
+                                showMessageBox("Vous avez trouvé une Vieille Épée Rouillée ! Votre attaque augmente de 5.");
+                            }
+                        },
+                        options: [
+                            { text: "Chercher la source de la corruption", nextScene: "deep_forest_path" }
+                        ]
+                    },
+                    cave_loot: {
+                        text: "Au fond de la grotte, vous trouvez un Anneau Scintillant. Il semble vous donner un peu plus de vitalité.",
+                        onEnter: () => {
+                            if (!rpgPlayer.inventory.includes('Anneau Scintillant')) {
+                                rpgPlayer.inventory.push('Anneau Scintillant');
+                                rpgPlayer.maxHp += 20; // Boost max HP
+                                rpgPlayer.hp = rpgPlayer.maxHp; // Heal to new max
+                                updateRPGStats();
+                                showMessageBox("Vous avez trouvé un Anneau Scintillant ! Votre HP max augmente de 20.");
+                            }
+                        },
+                        options: [
+                            { text: "Chercher la source de la corruption", nextScene: "deep_forest_path" }
+                        ]
+                    },
+                    deep_forest_path: {
+                        text: "Le chemin vous mène plus profondément dans la forêt. L'air devient lourd, et une aura maléfique émane d'une clairière devant vous. C'est la source !",
+                        options: [
+                            { text: "Affronter la menace", nextScene: "boss_fight" },
+                            { text: "Préparer une potion (si vous en avez une)", nextScene: "use_potion" }
+                        ]
+                    },
+                    use_potion: {
+                        text: "Vous cherchez une potion dans votre sac. (Cette fonctionnalité n'est pas encore implémentée, vous ne trouverez rien).",
+                        options: [
+                            { text: "Retourner affronter la menace", nextScene: "boss_fight" }
+                        ]
+                    },
+                    boss_fight: {
+                        text: "Un énorme Démon des Ombres se dresse devant vous, ses yeux rouges brillent de malice. Le combat final commence !",
+                        onEnter: () => startCombat('shadow_demon'),
+                        options: []
+                    },
+                    game_win: {
+                        text: "Avec un dernier coup, le Démon des Ombres s'effondre dans un cri déchirant. La corruption se dissipe, et la lumière revient à Eldoria. Vous êtes le héros ! Félicitations !",
+                        options: [{ text: "Recommencer l'aventure", nextScene: "intro" }]
+                    }
+                },
+                enemies: {
+                    goblin: { name: "Gobelin des Ombres", hp: 30, attack: 8, defense: 2, gold: 15 },
+                    shadow_wolf: { name: "Loup des Ombres", hp: 45, attack: 12, defense: 4, gold: 25 },
+                    shadow_demon: { name: "Démon des Ombres", hp: 150, attack: 20, defense: 8, gold: 100 }
+                },
+                currentEnemy: null,
+                lastDefeatedEnemy: null, // New property to store defeated enemy data
+                combatLog: []
+            };
+
+            document.getElementById('startRPGButton').style.display = 'block';
+            document.getElementById('rpgOutput').textContent = "Cliquez sur 'Commencer l'Aventure' pour débuter.";
+            document.getElementById('rpgOptions').innerHTML = '';
+            document.getElementById('rpgStats').innerHTML = '';
+        }
+
+        function startRPG() {
+            rpgPlayer = {
+                name: 'Héros Inconnu',
+                hp: 100,
+                maxHp: 100,
+                attack: 10,
+                defense: 5,
+                magic: 0,
+                inventory: [],
+                gold: 0
+            };
+            rpgGameData.combatLog = [];
+            rpgGameData.currentEnemy = null;
+            rpgGameData.lastDefeatedEnemy = null; // Ensure this is reset
+            document.getElementById('startRPGButton').style.display = 'none';
+            goToScene('intro');
+        }
+
+        function goToScene(sceneId) {
+            rpgCurrentScene = sceneId;
+            const scene = rpgGameData.scenes[sceneId];
+            const outputDiv = document.getElementById('rpgOutput');
+            const optionsDiv = document.getElementById('rpgOptions');
+
+            if (!scene || !outputDiv || !optionsDiv) {
+                console.error("Scene or elements not found:", sceneId);
+                return;
+            }
+
+            outputDiv.textContent = scene.text;
+            optionsDiv.innerHTML = '';
+
+            if (scene.onEnter) {
+                scene.onEnter();
+            }
+
+            if (rpgGameData.currentEnemy) { // If in combat, show combat options
+                displayCombatOptions();
+            } else { // Otherwise, show regular scene options
+                scene.options.forEach((option, index) => {
+                    const button = document.createElement('button');
+                    button.textContent = option.text;
+                    button.onclick = () => handleChoice(option.nextScene);
+                    optionsDiv.appendChild(button);
+                });
+            }
+            updateRPGStats();
+        }
+
+        function handleChoice(nextSceneId) {
+            if (nextSceneId) {
+                goToScene(nextSceneId);
+            }
+        }
+
+        function rollDiceComplex(num, sides) {
+            let total = 0;
+            let rolls = [];
+            for (let i = 0; i < num; i++) {
+                const roll = Math.floor(Math.random() * sides) + 1;
+                total += roll;
+                rolls.push(roll);
+            }
+            return { total, rolls };
+        }
+
+        function startCombat(enemyKey) {
+            rpgGameData.currentEnemy = { ...rpgGameData.enemies[enemyKey] }; // Deep copy
+            rpgGameData.combatLog = [];
+            appendCombatLog(`Un ${rpgGameData.currentEnemy.name} apparaît !`);
+            displayCombatOptions();
+        }
+
+        function displayCombatOptions() {
+            const optionsDiv = document.getElementById('rpgOptions');
+            optionsDiv.innerHTML = '';
+            
+            const attackBtn = document.createElement('button');
+            attackBtn.textContent = "Attaquer";
+            attackBtn.onclick = playerAttack;
+            optionsDiv.appendChild(attackBtn);
+
+            // Example for future magic/item options
+            // const magicBtn = document.createElement('button');
+            // magicBtn.textContent = "Magie (Non implémenté)";
+            // magicBtn.disabled = true;
+            // optionsDiv.appendChild(magicBtn);
+
+            // const itemBtn = document.createElement('button');
+            // itemBtn.textContent = "Utiliser un objet (Non implémenté)";
+            // itemBtn.disabled = true;
+            // optionsDiv.appendChild(itemBtn);
+
+            const fleeBtn = document.createElement('button');
+            fleeBtn.textContent = "Fuir";
+            fleeBtn.onclick = attemptFlee;
+            optionsDiv.appendChild(fleeBtn);
+
+            updateRPGStats();
+        }
+
+        function playerAttack() {
+            if (!rpgGameData.currentEnemy) return;
+
+            const playerRoll = rollDiceComplex(1, 20).total; // d20 for attack accuracy/power
+            let damage = rpgPlayer.attack + playerRoll - rpgGameData.currentEnemy.defense;
+            if (damage < 0) damage = 0;
+
+            rpgGameData.currentEnemy.hp -= damage;
+            appendCombatLog(`Vous attaquez le ${rpgGameData.currentEnemy.name} pour ${damage} dégâts !`);
+
+            if (rpgGameData.currentEnemy.hp <= 0) {
+                appendCombatLog(`${rpgGameData.currentEnemy.name} est vaincu !`);
+                // Store defeated enemy data before nulling currentEnemy
+                rpgGameData.lastDefeatedEnemy = { ...rpgGameData.currentEnemy };
+                rpgGameData.currentEnemy = null;
+                goToScene('combat_win');
+            } else {
+                enemyAttack();
+            }
+            updateRPGStats();
+        }
+
+        function enemyAttack() {
+            if (!rpgGameData.currentEnemy) return;
+
+            const enemyRoll = rollDiceComplex(1, 10).total; // d10 for enemy attack
+            let damage = rpgGameData.currentEnemy.attack + enemyRoll - rpgPlayer.defense;
+            if (damage < 0) damage = 0;
+
+            rpgPlayer.hp -= damage;
+            appendCombatLog(`${rpgGameData.currentEnemy.name} vous attaque pour ${damage} dégâts !`);
+
+            if (rpgPlayer.hp <= 0) {
+                appendCombatLog(`Vous avez été vaincu par le ${rpgGameData.currentEnemy.name}.`);
+                rpgGameData.currentEnemy = null;
+                goToScene('combat_lose');
+            } else {
+                displayCombatOptions(); // Allow player to choose next action
+            }
+            updateRPGStats();
+        }
+
+        function attemptFlee() {
+            const fleeChance = rollDiceComplex(1, 10).total; // 1d10
+            if (fleeChance > 5) { // 50% chance to flee
+                appendCombatLog("Vous réussissez à fuir !");
+                rpgGameData.currentEnemy = null;
+                // Return to a safe previous scene or a specific "fled" scene
+                goToScene('forest_edge'); // Example: return to forest edge
+            } else {
+                appendCombatLog("Vous ne parvenez pas à fuir !");
+                enemyAttack(); // Enemy gets a free hit
+            }
+            updateRPGStats();
+        }
+
+        function appendCombatLog(message) {
+            rpgGameData.combatLog.push(message);
+            const outputDiv = document.getElementById('rpgOutput');
+            if (outputDiv) {
+                // Keep only the last few messages for readability
+                const maxLogLines = 10;
+                if (rpgGameData.combatLog.length > maxLogLines) {
+                    rpgGameData.combatLog = rpgGameData.combatLog.slice(-maxLogLines);
+                }
+                outputDiv.textContent = rpgGameData.combatLog.join('\n');
+                outputDiv.scrollTop = outputDiv.scrollHeight; // Scroll to bottom
+            }
+        }
+
+        function updateRPGStats() {
+            const statsDiv = document.getElementById('rpgStats');
+            if (!statsDiv) return;
+
+            let statsHTML = `
+                <p><strong>${rpgPlayer.name}</strong></p>
+                <p>HP: ${Math.max(0, rpgPlayer.hp)} / ${rpgPlayer.maxHp}</p>
+                <p>Attaque: ${rpgPlayer.attack}</p>
+                <p>Défense: ${rpgPlayer.defense}</p>
+                <p>Or: ${rpgPlayer.gold}</p>
+                <p>Inventaire: ${rpgPlayer.inventory.length > 0 ? rpgPlayer.inventory.join(', ') : 'Vide'}</p>
+            `;
+            if (rpgGameData.currentEnemy) {
+                statsHTML += `<p><strong>Ennemi: ${rpgGameData.currentEnemy.name}</strong></p>
+                              <p>HP Ennemi: ${Math.max(0, rpgGameData.currentEnemy.hp)}</p>`;
+            }
+            statsDiv.innerHTML = statsHTML;
+        }
+
+        // Handle keyboard input for RPG (e.g., for quick choice selection)
+        function handleRPGKeydown(e) {
+            // This could be used to map number keys to options, but for now, buttons are sufficient.
+            // e.g., if (e.key === '1') handleChoice(rpgGameData.scenes[rpgCurrentScene].options[0].nextScene);
+        }
+
+    </script>
+</body>
+</html>
